@@ -15,11 +15,11 @@
     --border: #c1cbd6;
     --button-bg: #eef2f7;
     --button-hover: #e1e8f0;
-    --zoom-controls-bg: rgba(255, 255, 255, 0.95);
-    --header-bg: rgba(247, 249, 252, 0.95);
-    --status-bg: rgba(247, 249, 252, 0.95);
-    --shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-    --card-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    --zoom-controls-bg: rgba(255, 255, 255, 0.9);
+    --header-bg: rgba(247, 249, 252, 0.9);
+    --status-bg: rgba(247, 249, 252, 0.9);
+    --shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    --card-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
     --canvas-bg: #f7f9fc;
 }
 
@@ -33,11 +33,11 @@ body.theme-dark {
     --border: #3a4252;
     --button-bg: #2d3440;
     --button-hover: #3a4252;
-    --zoom-controls-bg: rgba(37, 42, 51, 0.95);
-    --header-bg: rgba(26, 29, 36, 0.95);
-    --status-bg: rgba(26, 29, 36, 0.95);
-    --shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
-    --card-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    --zoom-controls-bg: rgba(37, 42, 51, 0.9);
+    --header-bg: rgba(26, 29, 36, 0.9);
+    --status-bg: rgba(26, 29, 36, 0.9);
+    --shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    --card-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
     --canvas-bg: #2d3440;
 }
 
@@ -54,14 +54,13 @@ body {
 
 .header {
     background: var(--header-bg);
-    padding: 12px 24px;
+    padding: 8px 16px;
     display: flex;
     justify-content: space-between;
     align-items: center;
     border-bottom: 1px solid var(--border);
     box-shadow: var(--shadow);
     transition: all 0.6s ease;
-    backdrop-filter: blur(6px);
 }
 
 .logo {
@@ -71,35 +70,36 @@ body {
 }
 
 .logo h1 {
-    font-size: 1.6rem;
+    font-size: 1.4rem;
     color: var(--accent);
     font-weight: 600;
     text-shadow: 0 0 10px rgba(231, 76, 60, 0.2);
     transition: all 0.6s ease;
     background: linear-gradient(45deg, #e74c3c, #c0392b, #e74c3c);
     -webkit-background-clip: text;
+    background-clip: text;
     -webkit-text-fill-color: transparent;
 }
 
 .controls {
     display: flex;
-    gap: 12px;
+    gap: 8px;
 }
 
 .btn {
     background: var(--button-bg);
     color: var(--text);
     border: 1px solid var(--border);
-    padding: 10px 18px;
-    border-radius: 8px;
+    padding: 8px 14px;
+    border-radius: 6px;
     cursor: pointer;
     transition: all 0.3s ease;
     font-weight: 500;
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 6px;
     box-shadow: var(--card-shadow);
-    font-size: 0.95rem;
+    font-size: 0.9rem;
 }
 
 .btn:hover {
@@ -110,8 +110,8 @@ body {
 }
 
 .btn i {
-    font-size: 1rem;
-    width: 18px;
+    font-size: 0.9rem;
+    width: 16px;
     text-align: center;
 }
 
@@ -121,6 +121,11 @@ body {
     overflow: hidden;
     padding: 20px;
     gap: 20px;
+}
+
+.bottom-container {
+    display: flex;
+    flex-direction: column;
 }
 
 /* 左侧组件面板 */
@@ -180,11 +185,12 @@ body {
 
 .search-icon {
     position: absolute;
-    left: 12px;
+    left: 10px;
     top: 50%;
     transform: translateY(-50%);
     color: var(--text);
     opacity: 0.6;
+    font-size: 0.8rem;
 }
 
 .search-hint {
@@ -286,7 +292,6 @@ body {
     cursor: default;
     image-rendering: pixelated;
     image-rendering: crisp-edges;
-    image-rendering-mode: optimize-speed; 
 }
 
 body.theme-dark .grid-overlay {
@@ -298,22 +303,21 @@ body.theme-dark .grid-overlay {
 /* 状态栏 */
 .status-bar {
     background: var(--status-bg);
-    padding: 12px 24px;
+    padding: 8px 16px;
     display: flex;
     justify-content: space-between;
     border-top: 1px solid var(--border);
-    font-size: 0.9rem;
+    font-size: 0.85rem;
     transition: all 0.6s ease;
-    backdrop-filter: blur(6px);
     box-shadow: 0 -3px 10px rgba(0, 0, 0, 0.05);
 }
 
 .status-item {
     display: flex;
     align-items: center;
-    gap: 8px;
-    padding: 4px 12px;
-    border-radius: 6px;
+    gap: 6px;
+    padding: 3px 10px;
+    border-radius: 5px;
     background: rgba(255, 255, 255, 0.1);
     border: 1px solid var(--border);
     box-shadow: var(--card-shadow);
@@ -327,7 +331,7 @@ body.theme-dark .grid-overlay {
 
 .status-item i {
     color: var(--accent);
-    font-size: 0.9rem;
+    font-size: 0.8rem;
     transition: all 0.6s ease;
 }
 
@@ -341,7 +345,6 @@ body.theme-dark .grid-overlay {
     border: 1px solid var(--border);
     box-shadow: var(--shadow);
     transition: all 0.6s ease;
-    backdrop-filter: blur(6px);
     position: absolute;
     bottom: 20px;
     right: 20px;
@@ -408,6 +411,137 @@ body.theme-dark .grid-overlay {
     .zoom-controls {
         position: static;
         transform: none;
+    }
+   
+    .bottom-container {
+        order: 3;
+    }
+}
+
+/* 竖屏设备优化 */
+@media (max-width: 768px) and (orientation: portrait) {
+    .header {
+        padding: 6px 10px;
+    }
+   
+    .logo h1 {
+        font-size: 1.1rem;
+    }
+   
+    .controls {
+        gap: 4px;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+    }
+   
+    .btn {
+        padding: 5px 8px;
+        font-size: 0.75rem;
+    }
+   
+    .btn span {
+        display: none;
+    }
+   
+    .btn i {
+        font-size: 1rem;
+        width: auto;
+    }
+   
+    #theme-toggle span {
+        display: none;
+    }
+   
+    .main-container {
+        padding: 8px;
+        gap: 8px;
+    }
+   
+    #components-panel {
+        max-height: 160px;
+        padding: 12px;
+    }
+   
+    .panel-header h2 {
+        font-size: 1rem;
+    }
+   
+    .category h3 {
+        font-size: 0.9rem;
+        margin-bottom: 8px;
+    }
+   
+    #component-search {
+        padding: 8px 12px 8px 32px;
+        border-radius: 5px;
+        font-size: 0.9rem;
+    }
+   
+    .components-grid {
+        grid-template-columns: repeat(8, 1fr);
+        gap: 3px;
+    }
+   
+    .component {
+        width: 28px;
+        height: 28px;
+    }
+   
+    .component img {
+        width: 22px;
+        height: 22px;
+    }
+   
+    .status-bar {
+        padding: 6px 10px;
+        flex-wrap: wrap;
+        gap: 4px;
+        position: relative;
+    }
+   
+    .status-item {
+        padding: 2px 5px;
+        font-size: 0.7rem;
+    }
+   
+    /* 将工具栏移到底部 */
+    .controls {
+        order: 3;
+        width: 100%;
+        justify-content: center;
+    }
+   
+    .logo {
+        order: 1;
+    }
+   
+    .header {
+        flex-direction: column;
+        gap: 8px;
+    }
+   
+    .zoom-controls {
+        padding: 4px 6px;
+    }
+   
+    .zoom-btn {
+        width: 22px;
+        height: 22px;
+        font-size: 0.7rem;
+    }
+   
+    /* 底部容器 */
+    .bottom-container {
+        order: 4;
+        width: 100%;
+    }
+   
+    /* 将状态栏移到底部 */
+    .bottom-container .status-bar {
+        order: 4;
+        width: 100%;
+        border-top: 1px solid var(--border);
+        border-bottom: none;
     }
 }
 
@@ -512,7 +646,6 @@ body.theme-dark .grid-overlay {
     z-index: 1000;
     align-items: center;
     justify-content: center;
-    backdrop-filter: blur(3px);
 }
 
 .modal-content {
@@ -523,17 +656,42 @@ body.theme-dark .grid-overlay {
     max-width: 90%;
     box-shadow: var(--shadow);
     position: relative;
-    transform: translateY(-20px);
+    transform: translateY(-20px) scale(0.95);
     opacity: 0;
-    transition: all 0.3s ease-out;
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     display: flex;
     flex-direction: column;
     max-height: 90vh;
 }
 
 .modal.show .modal-content {
-    transform: translateY(0);
+    transform: translateY(0) scale(1);
     opacity: 1;
+}
+
+.modal {
+    transition: all 0.3s ease;
+    opacity: 0;
+}
+
+.modal.show {
+    opacity: 1;
+}
+
+/* 模态框触发按钮动画 */
+.modal-trigger {
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.modal-trigger:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+    border-color: var(--accent);
+}
+
+.modal-trigger:active {
+    transform: translateY(-1px);
+    transition: all 0.1s ease;
 }
 
 .modal-header {

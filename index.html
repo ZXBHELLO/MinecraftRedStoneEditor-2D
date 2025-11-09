@@ -51,27 +51,27 @@ root/
             <h1 data-lang="header_title"></h1>
         </div>
         <div class="controls">
-            <select id="language-select" class="btn">
+            <select id="language-select" class="btn modal-trigger">
                 <option value="zh_cn" data-lang="lang_zh">中文</option>
                 <option value="en_us" data-lang="lang_en">English</option>
             </select>
             <!-- 主题按钮 -->
-            <button class="btn" id="theme-toggle">
+            <button class="btn modal-trigger" id="theme-toggle">
                 <i class="fas fa-moon"></i> <span data-lang="theme_btn"></span>
             </button>
-            <button class="btn" id="clear-btn">
+            <button class="btn modal-trigger" id="clear-btn">
                 <i class="fas fa-broom"></i> <span data-lang="clear_btn"></span>
             </button>
-            <button class="btn" id="save-screen">
+            <button class="btn modal-trigger" id="save-screen">
                 <i class="fas fa-camera"></i> <span data-lang="screenshot_btn"></span>
             </button>
-            <button class="btn" id="save-btn">
+            <button class="btn modal-trigger" id="save-btn">
                 <i class="fas fa-save"></i> <span data-lang="save_btn"></span>
             </button>
-            <button class="btn" id="load-btn">
+            <button class="btn modal-trigger" id="load-btn">
                 <i class="fas fa-folder-open"></i> <span data-lang="load_btn"></span>
             </button>
-            <button class="btn" id="help-btn">
+            <button class="btn modal-trigger" id="help-btn">
                 <i class="fas fa-question-circle"></i> <span data-lang="help_btn"></span>
             </button>
         </div>
@@ -112,22 +112,25 @@ root/
         </div>
     </div>
   
-    <!-- 状态栏 -->
-    <div class="status-bar">
-        <div class="status-item" id="block-count">
-            <i class="fas fa-cube"></i> <span data-lang-dynamic="block_count"></span>
-        </div>
-        <div class="status-item" id="current-component">
-            <i class="fas fa-mouse-pointer"></i> <span data-lang-dynamic="current_component"></span>
-        </div>
-        <div class="status-item" id="cursor-position">
-            <i class="fas fa-crosshairs"></i> <span data-lang-dynamic="cursor_position"></span>
-        </div>
-        <div class="status-item" id="canvas-scale">
-            <i class="fas fa-search"></i> <span data-lang-dynamic="canvas_scale"></span>
-        </div>
-        <div class="status-item" id="theme-display">
-            <i class="fas fa-adjust"></i> <span data-lang-dynamic="theme_display"></span>
+    <!-- 底部工具栏和状态栏 -->
+    <div class="bottom-container">
+        <!-- 状态栏 -->
+        <div class="status-bar">
+            <div class="status-item" id="block-count">
+                <i class="fas fa-cube"></i> <span data-lang-dynamic="block_count"></span>
+            </div>
+            <div class="status-item" id="current-component">
+                <i class="fas fa-mouse-pointer"></i> <span data-lang-dynamic="current_component"></span>
+            </div>
+            <div class="status-item" id="cursor-position">
+                <i class="fas fa-crosshairs"></i> <span data-lang-dynamic="cursor_position"></span>
+            </div>
+            <div class="status-item" id="canvas-scale">
+                <i class="fas fa-search"></i> <span data-lang-dynamic="canvas_scale"></span>
+            </div>
+            <div class="status-item" id="theme-display">
+                <i class="fas fa-adjust"></i> <span data-lang-dynamic="theme_display"></span>
+            </div>
         </div>
     </div>
         <!-- 截图预览模态框 -->
@@ -135,17 +138,17 @@ root/
           <div class="modal-content">
             <div class="modal-header">
               <h2><i class="fas fa-camera"></i> <span data-lang="screenshot_modal_title"></span></h2>
-              <button class="close-modal">&times;</button>
+              <button class="close-modal modal-trigger">&times;</button>
             </div>
             <div class="modal-body" style="text-align: center;">
               <canvas id="screenshot-preview" style="max-width: 100%; border: 1px solid var(--border); border-radius: 8px;"></canvas>
               <div id="screenshot-info" style="margin-top: 10px; color: var(--text); font-size: 0.9rem;"></div>
             </div>
             <div class="modal-footer">
-              <button class="modal-btn secondary-btn close-modal">
+              <button class="modal-btn secondary-btn close-modal modal-trigger">
                 <i class="fas fa-times"></i> <span data-lang="close_btn"></span>
               </button>
-              <button class="modal-btn primary-btn" id="download-screenshot">
+              <button class="modal-btn primary-btn modal-trigger" id="download-screenshot">
                 <i class="fas fa-download"></i> <span data-lang="download_screenshot_btn"></span>
               </button>
             </div>
@@ -157,7 +160,7 @@ root/
         <div class="modal-content">
             <div class="modal-header">
                 <h2><i class="fas fa-save"></i> <span data-lang="save_modal_title"></span></h2>
-                <button class="close-modal">&times;</button>
+                <button class="close-modal modal-trigger">&times;</button>
             </div>
             <div class="modal-body">
                 <div class="input-group">
@@ -170,10 +173,10 @@ root/
                 </div>
             </div>
             <div class="modal-footer">
-                <button class="modal-btn secondary-btn close-modal">
+                <button class="modal-btn secondary-btn close-modal modal-trigger">
                     <i class="fas fa-times"></i> <span data-lang="cancel_btn"></span>
                 </button>
-                <button class="modal-btn primary-btn" id="confirm-save">
+                <button class="modal-btn primary-btn modal-trigger" id="confirm-save">
                     <i class="fas fa-save"></i> <span data-lang="confirm_save_btn"></span>
                 </button>
             </div>
@@ -185,7 +188,7 @@ root/
         <div class="modal-content">
             <div class="modal-header">
                 <h2><i class="fas fa-folder-open"></i> <span data-lang="load_modal_title"></span></h2>
-                <button class="close-modal">&times;</button>
+                <button class="close-modal modal-trigger">&times;</button>
             </div>
             <div class="modal-body">
                 <div class="file-upload">
@@ -201,10 +204,10 @@ root/
                 </div>
             </div>
             <div class="modal-footer">
-                <button class="modal-btn secondary-btn close-modal">
+                <button class="modal-btn secondary-btn close-modal modal-trigger">
                     <i class="fas fa-times"></i> <span data-lang="cancel_btn"></span>
                 </button>
-                <button class="modal-btn primary-btn" id="confirm-load">
+                <button class="modal-btn primary-btn modal-trigger" id="confirm-load">
                     <i class="fas fa-file-import"></i> <span data-lang="confirm_load_btn"></span>
                 </button>
             </div>
@@ -216,7 +219,7 @@ root/
         <div class="modal-content">
             <div class="modal-header">
                 <h2><i class="fas fa-broom"></i> <span data-lang="clear_confirm_modal_title"></span></h2>
-                <button class="close-modal">&times;</button>
+                <button class="close-modal modal-trigger">&times;</button>
             </div>
             <div class="modal-body">
                 <div class="confirmation-message">
@@ -226,10 +229,10 @@ root/
                 </div>
             </div>
             <div class="modal-footer">
-                <button class="modal-btn secondary-btn close-modal">
+                <button class="modal-btn secondary-btn close-modal modal-trigger">
                     <i class="fas fa-times"></i> <span data-lang="cancel_btn"></span>
                 </button>
-                <button class="modal-btn primary-btn" id="confirm-clear">
+                <button class="modal-btn primary-btn modal-trigger" id="confirm-clear">
                     <i class="fas fa-check"></i> <span data-lang="confirm_clear_btn"></span>
                 </button>
             </div>
@@ -241,7 +244,7 @@ root/
     <div class="modal-content">
         <div class="modal-header">
             <h2><i class="fas fa-question-circle"></i> <span data-lang="help_modal_title"></span></h2>
-            <button class="close-modal">&times;</button>
+            <button class="close-modal modal-trigger">&times;</button>
         </div>
         <div class="modal-body">
             <div class="help-content">
@@ -279,7 +282,7 @@ root/
             </div>
         </div>
         <div class="modal-footer">
-            <button class="modal-btn primary-btn close-modal">
+            <button class="modal-btn primary-btn close-modal modal-trigger">
                 <i class="fas fa-check"></i> <span data-lang="close_btn"></span>
             </button>
         </div>

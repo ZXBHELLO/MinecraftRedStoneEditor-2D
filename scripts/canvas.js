@@ -147,9 +147,12 @@ downloadBtn.addEventListener("click", () => {
 });
 
 document.querySelectorAll("#screenshot-modal .close-modal").forEach(btn => {
-  btn.addEventListener("click", () => {
-    screenshotModal.classList.remove("show");
-    setTimeout(() => (screenshotModal.style.display = "none"), 300);
-  });
+  btn.addEventListener("click", closeAllModals);
+});
+
+screenshotModal.addEventListener("click", (e) => {
+  if (e.target === screenshotModal) {
+    closeAllModals();
+  }
 });
 

@@ -1,7 +1,7 @@
 function openSaveModal() {
   try {
-    document.getElementById('save-modal').classList.add('show');
     document.getElementById('save-modal').style.display = 'flex';
+    setTimeout(() => document.getElementById('save-modal').classList.add('show'), 10);
   } catch (error) {
     displayError(`openSaveModal error: ${error.message}`);
   }
@@ -9,8 +9,8 @@ function openSaveModal() {
 
 function openLoadModal() {
   try {
-    document.getElementById('load-modal').classList.add('show');
     document.getElementById('load-modal').style.display = 'flex';
+    setTimeout(() => document.getElementById('load-modal').classList.add('show'), 10);
     document.getElementById('load-status').innerHTML = '<i class="fas fa-info-circle"></i> 请选择或拖放JSON设计文件';
   } catch (error) {
     displayError(`openLoadModal error: ${error.message}`);
@@ -19,8 +19,8 @@ function openLoadModal() {
 
 function openClearConfirmModal() {
   try {
-    document.getElementById('clear-confirm-modal').classList.add('show');
     document.getElementById('clear-confirm-modal').style.display = 'flex';
+    setTimeout(() => document.getElementById('clear-confirm-modal').classList.add('show'), 10);
   } catch (error) {
     displayError(`openClearConfirmModal error: ${error.message}`);
   }
@@ -28,8 +28,8 @@ function openClearConfirmModal() {
 
 function openHelpModal() {
   try {
-    document.getElementById('help-modal').classList.add('show');
     document.getElementById('help-modal').style.display = 'flex';
+    setTimeout(() => document.getElementById('help-modal').classList.add('show'), 10);
   } catch (error) {
     displayError(`openHelpModal error: ${error.message}`);
   }
