@@ -18,9 +18,19 @@ function setupCanvasEventListeners() {
     canvas.addEventListener('touchstart', handleTouchStart, { passive: false });
     canvas.addEventListener('touchmove', handleTouchMove, { passive: false });
     canvas.addEventListener('touchend', handleTouchEnd);
-    window.addEventListener('resize', resizeCanvas);
+    window.addEventListener('resize', handleWindowResize);
   } catch (error) {
     displayError(`setupCanvasEventListeners error: ${error.message}`);
+  }
+}
+
+function handleWindowResize() {
+  try {
+    resizeCanvas();
+    resetCanvasPosition();
+    render(); // 强制重新渲染
+  } catch (error) {
+    displayError(`handleWindowResize error: ${error.message}`);
   }
 }
 

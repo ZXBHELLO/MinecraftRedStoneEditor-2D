@@ -103,7 +103,7 @@ function render() {
 
 function resetCanvasPosition() {
   try {
-    canvasScale = 1.0;
+    canvasScale = 0.4; // 重置缩放为40%
     const container = document.getElementById('canvas-container');
     const canvasWidth = canvasSize * tileSize * canvasScale;
     const canvasHeight = canvasSize * tileSize * canvasScale;
