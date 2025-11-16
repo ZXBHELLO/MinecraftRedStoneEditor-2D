@@ -59,12 +59,29 @@ function setupDayNightToggle() {
 
 function loadThemeFromStorage() {
   try {
+    // 检查系统主题偏好
+    const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    
+    // 检查是否有保存的用户主题设置
     const savedTheme = localStorage.getItem('theme');
+    
     const themeToggle = document.getElementById('theme-toggle');
     const themeIcon = themeToggle.querySelector('i');
-    const themeText = themeToggle.querySelector('span');
     const themeDisplay = document.querySelector('#theme-display span');
+    
+    let isDarkMode;
+    
+    // 如果有保存的设置，使用保存的设置，否则跟随系统
     if (savedTheme === 'dark') {
+      isDarkMode = true;
+    } else if (savedTheme === 'light') {
+      isDarkMode = false;
+    } else {
+      // 跟随系统主题
+      isDarkMode = systemPrefersDark;
+    }
+    
+    if (isDarkMode) {
       document.body.classList.add('theme-dark');
       themeIcon.className = 'fas fa-sun';
       themeDisplay.textContent = '夜间模式';
