@@ -20,7 +20,7 @@
     --status-bg: rgba(247, 249, 252, 0.9);
     --shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     --card-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
-    --canvas-bg: #f7f9fc;
+    --canvas-bg: #ffffff;
 }
 
 body.theme-dark {
