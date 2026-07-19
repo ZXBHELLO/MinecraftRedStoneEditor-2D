@@ -109,6 +109,14 @@ function setupZoomControls() {
       e.stopPropagation();
       resetCanvasPosition();
     });
+    // 顶部重置缩放按钮（移动端显示）
+    const zoomResetTop = document.getElementById('zoom-reset-top');
+    if (zoomResetTop) {
+      zoomResetTop.addEventListener('click', (e) => {
+        e.stopPropagation();
+        resetCanvasPosition();
+      });
+    }
   } catch (error) {
     displayError(`setupZoomControls error: ${error.message}`);
   }

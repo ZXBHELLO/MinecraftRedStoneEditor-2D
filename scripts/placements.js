@@ -1,6 +1,29 @@
+let isPlacing = false;
+
 function setBlock(gridX, gridY, selectedComponent){
   if (gridX >= 0 && gridX < canvasSize && gridY >= 0 && gridY < canvasSize) {
     const key = `${gridX},${gridY}`;
+    
+    // 检查是否有实际变化
+    const oldValue = grid[key];
+    const willDelete = (oldValue === selectedComponent || selectedComponent === 'air');
+    const willAdd = (selectedComponent !== 'air' && oldValue !== selectedComponent);
+    
+    // 如果没有实际变化，直接返回
+    if ((willDelete && !oldValue) || (!willDelete && !willAdd)) {
+      return;
+    }
+    
+    // 最外层调用时保存历史记录
+    if (!isPlacing) {
+      isPlacing = true;
+      // 延迟保存，确保所有递归操作完成
+      setTimeout(function() {
+        saveHistory();
+        isPlacing = false;
+      }, 0);
+    }
+    
     if (grid[key] === selectedComponent || selectedComponent === 'air') {
         delete grid[key];
     } else if (selectedComponent !== 'air') {

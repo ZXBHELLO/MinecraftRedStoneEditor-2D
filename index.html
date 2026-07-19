@@ -58,6 +58,10 @@ root/
             <button class="btn modal-trigger" id="theme-toggle">
                 <i class="fas fa-moon"></i>
             </button>
+            <!-- 重置缩放按钮（移动端显示） -->
+            <button class="btn modal-trigger mobile-only" id="zoom-reset-top" title="重置缩放">
+                <i class="fas fa-compress-arrows-alt"></i>
+            </button>
             <button class="btn modal-trigger" id="clear-btn">
                 <i class="fas fa-broom"></i>
             </button>
@@ -76,12 +80,21 @@ root/
         </div>
     </div>
   
+    <!-- 移动端组件面板切换按钮 -->
+    <button class="mobile-panel-toggle" id="mobile-panel-toggle">
+        <i class="fas fa-cubes"></i>
+        <span data-lang="components_panel_title"></span>
+    </button>
+
     <!-- 主内容区 -->
     <div class="main-container">
         <!-- 左侧组件面板 -->
-        <div id="components-panel">
+        <div id="components-panel" class="components-panel">
             <div class="panel-header">
                 <h2><i class="fas fa-cubes"></i> <span data-lang="components_panel_title"></span></h2>
+                <button class="panel-close-btn" id="panel-close-btn">
+                    <i class="fas fa-times"></i>
+                </button>
             </div>
           
             <div class="search-container">
@@ -109,6 +122,34 @@ root/
                 </button>
             </div>
         </div>
+    </div>
+
+    <!-- 移动端底部工具栏 -->
+    <div class="mobile-toolbar" id="mobile-toolbar">
+        <button class="mobile-tool-btn" id="mobile-undo-btn" title="撤销">
+            <i class="fas fa-undo"></i>
+            <span data-lang="undo_btn"></span>
+        </button>
+        <button class="mobile-tool-btn" id="mobile-redo-btn" title="重做">
+            <i class="fas fa-redo"></i>
+            <span data-lang="redo_btn"></span>
+        </button>
+        <button class="mobile-tool-btn" id="mobile-clear-btn" title="清空">
+            <i class="fas fa-broom"></i>
+            <span data-lang="clear_btn"></span>
+        </button>
+        <button class="mobile-tool-btn" id="mobile-save-btn" title="保存">
+            <i class="fas fa-save"></i>
+            <span data-lang="save_btn"></span>
+        </button>
+        <button class="mobile-tool-btn" id="mobile-load-btn" title="导入">
+            <i class="fas fa-folder-open"></i>
+            <span data-lang="load_btn"></span>
+        </button>
+        <button class="mobile-tool-btn" id="mobile-theme-btn" title="主题">
+            <i class="fas fa-moon"></i>
+            <span data-lang="theme_btn"></span>
+        </button>
     </div>
   
     <!-- 底部工具栏和状态栏 -->

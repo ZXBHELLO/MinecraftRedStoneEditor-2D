@@ -7,6 +7,14 @@ let touchCenterX = null, touchCenterY = null;
 let touchPending = null;
 let draggingPlancement = false;
 
+// 长按和双击检测
+let longPressTimer = null;
+let lastTapTime = 0;
+let lastTapX = 0, lastTapY = 0;
+const LONG_PRESS_DURATION = 500; // 长按持续时间（毫秒）
+const DOUBLE_TAP_DISTANCE = 30; // 双击最大距离（像素）
+const DOUBLE_TAP_TIME = 300; // 双击最大时间间隔（毫秒）
+
 function setupCanvasEventListeners() {
   try {
     //鼠标
@@ -24,11 +32,24 @@ function setupCanvasEventListeners() {
   }
 }
 
+// 防抖定时器
+let resizeTimer = null;
+
 function handleWindowResize() {
   try {
-    resizeCanvas();
-    resetCanvasPosition();
-    render(); // 强制重新渲染
+    // 防抖处理，避免频繁触发
+    if (resizeTimer) clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(function() {
+      resizeCanvas();
+      // 保持当前缩放比例，重新居中画布
+      const container = document.getElementById('canvas-container');
+      const canvasWidth = canvasSize * tileSize * canvasScale;
+      const canvasHeight = canvasSize * tileSize * canvasScale;
+      offsetX = (container.clientWidth - canvasWidth) / 2;
+      offsetY = (container.clientHeight - canvasHeight) / 2;
+      render();
+      updateZoomDisplay();
+    }, 100);
   } catch (error) {
     displayError(`handleWindowResize error: ${error.message}`);
   }
@@ -94,13 +115,50 @@ function handleTouchStart(e) {
     const touches = e.touches;
     const rect = canvas.getBoundingClientRect();
     touchStartTime = Date.now();
+    
+    // 清除之前的长按定时器
+    if (longPressTimer) {
+      clearTimeout(longPressTimer);
+      longPressTimer = null;
+    }
+    
     if (touches.length === 1) {
       isDragging = true;
       dragStartX = touches[0].clientX - offsetX;
       dragStartY = touches[0].clientY - offsetY;
       canvas.style.cursor = 'grabbing';
+      
+      // 设置长按定时器
+      const touch = touches[0];
+      const x = touch.clientX - rect.left;
+      const y = touch.clientY - rect.top;
+      const gridX = Math.floor((x - offsetX) / (tileSize * canvasScale));
+      const gridY = Math.floor((y - offsetY) / (tileSize * canvasScale));
+      
+      if (gridX >= 0 && gridX < canvasSize && gridY >= 0 && gridY < canvasSize) {
+        touchPending = { gridX, gridY };
+        
+        // 长按检测
+        longPressTimer = setTimeout(function() {
+          // 长按触发删除操作
+          if (touchPending && grid[`${gridX},${gridY}`]) {
+            setBlock(gridX, gridY, 'air');
+            // 触觉反馈
+            if (navigator.vibrate) {
+              navigator.vibrate(20);
+            }
+            touchPending = null;
+          }
+        }, LONG_PRESS_DURATION);
+      }
     } else if (touches.length === 2) {
       isDragging = false;
+      // 双指触摸时清除长按定时器
+      if (longPressTimer) {
+        clearTimeout(longPressTimer);
+        longPressTimer = null;
+      }
+      
       const touch1 = touches[0];
       const touch2 = touches[1];
       const centerX = (touch1.clientX + touch2.clientX) / 2;
@@ -112,15 +170,6 @@ function handleTouchStart(e) {
       touchCenterX = centerX;
       touchCenterY = centerY;
     }
-    if (touches.length === 1) {
-      const x = touches[0].clientX - rect.left;
-      const y = touches[0].clientY - rect.top;
-      const gridX = Math.floor((x - offsetX) / (tileSize * canvasScale));
-      const gridY = Math.floor((y - offsetY) / (tileSize * canvasScale));
-      if (gridX >= 0 && gridX < canvasSize && gridY >= 0 && gridY < canvasSize) {
-        touchPending = { gridX, gridY };
-      }
-    }
   } catch (error) {
     displayError(`handleTouchStart error: ${error.message}`);
   }
@@ -131,6 +180,13 @@ function handleTouchMove(e) {
     e.preventDefault();
     const touches = e.touches;
     const rect = canvas.getBoundingClientRect();
+    
+    // 移动时清除长按定时器
+    if (longPressTimer) {
+      clearTimeout(longPressTimer);
+      longPressTimer = null;
+    }
+    
     if (touches.length === 1 && isDragging) {
       offsetX = touches[0].clientX - dragStartX;
       offsetY = touches[0].clientY - dragStartY;
@@ -174,11 +230,57 @@ function handleTouchMove(e) {
 
 function handleTouchEnd(e) {
   try {
-    const touchDuration = Date.now() - touchStartTime;
-    if (touchDuration < 200 && touchPending) {
-      const { gridX, gridY } = touchPending;
-      setBlock(gridX,gridY,selectedComponent);
+    // 清除长按定时器
+    if (longPressTimer) {
+      clearTimeout(longPressTimer);
+      longPressTimer = null;
     }
+    
+    const touchDuration = Date.now() - touchStartTime;
+    const touches = e.changedTouches;
+    
+    if (touchDuration < 200 && touchPending && touches.length === 1) {
+      const { gridX, gridY } = touchPending;
+      const touch = touches[0];
+      const currentTime = Date.now();
+      
+      // 双击检测
+      const tapDistance = Math.sqrt(
+        Math.pow(touch.clientX - lastTapX, 2) + 
+        Math.pow(touch.clientY - lastTapY, 2)
+      );
+      
+      if (currentTime - lastTapTime < DOUBLE_TAP_TIME && tapDistance < DOUBLE_TAP_DISTANCE) {
+        // 双击触发：快速放大/缩小
+        const rect = canvas.getBoundingClientRect();
+        const centerX = touch.clientX;
+        const centerY = touch.clientY;
+        
+        // 如果当前缩放小于1.0，双击放大；否则缩小
+        if (canvasScale < 1.0) {
+          zoomCanvas(0.5, centerX, centerY);
+        } else {
+          zoomCanvas(-0.5, centerX, centerY);
+        }
+        
+        // 触觉反馈
+        if (navigator.vibrate) {
+          navigator.vibrate(15);
+        }
+        
+        // 重置双击计时
+        lastTapTime = 0;
+      } else {
+        // 单击放置方块
+        setBlock(gridX, gridY, selectedComponent);
+        
+        // 记录点击信息用于双击检测
+        lastTapTime = currentTime;
+        lastTapX = touch.clientX;
+        lastTapY = touch.clientY;
+      }
+    }
+    
     isDragging = false;
     canvas.style.cursor = 'default';
     initialTouchDistance = null;

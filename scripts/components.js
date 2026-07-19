@@ -179,7 +179,18 @@ function loadComponents() {
       else if (category === "装饰方块") icon.className = "fas fa-paint-brush";
       else if (category === "特殊方块") icon.className = "fas fa-star";
       title.appendChild(icon);
-      title.appendChild(document.createTextNode(category));
+      // 分类名到翻译键的映射
+      const categoryLangMap = {
+        "基础方块": "category_basic",
+        "机械元件": "category_mechanical",
+        "装饰方块": "category_decorative",
+        "特殊方块": "category_special"
+      };
+      const categoryLangKey = categoryLangMap[category] || category;
+      const categoryNameSpan = document.createElement("span");
+      categoryNameSpan.setAttribute("data-lang", categoryLangKey);
+      categoryNameSpan.textContent = lang(categoryLangKey);
+      title.appendChild(categoryNameSpan);
       categoryDiv.appendChild(title);
       const gridDiv = document.createElement('div');
       gridDiv.className = 'components-grid';

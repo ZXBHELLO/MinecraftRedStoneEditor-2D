@@ -54,6 +54,8 @@ function clearCanvas() {
     updateStatusBar();
     hasChanges = true;
     closeAllModals();
+    // 保存历史记录
+    saveHistory();
   } catch (error) {
     displayError(`clearCanvas error: ${error.message}`);
   }
