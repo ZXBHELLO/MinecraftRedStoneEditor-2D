@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="zh">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,8 +8,10 @@
     <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="styles.css">
-    <script src="lang.js"></script>
+    <script src="scripts/lang.js"></script>
+    
 </head>
+
 <body>
     <!-- 资源加载指示器 -->
     <div class="loader" id="resource-loader">
@@ -18,17 +21,19 @@
             <div class="loader-progress-bar" id="progress-bar"></div>
         </div>
     </div>
-     <!-- 错误提示 -->
-    <div id="error-display" style="display: none; position: fixed; top: 10px; right: 10px; background: rgba(255, 0, 0, 0.8); color: white; padding: 10px; border-radius: 5px; z-index: 1000; max-width: 300px; font-size: 12px;">
-      <h3 data-lang="error_display_title"></h3>
-      <div id="error-messages"></div>
+    <!-- 错误提示 -->
+    <div id="error-display"
+        style="display: none; position: fixed; top: 10px; right: 10px; background: rgba(255, 0, 0, 0.8); color: white; padding: 10px; border-radius: 5px; z-index: 1000; max-width: 300px; font-size: 12px;">
+        <h3 data-lang="error_display_title"></h3>
+        <div id="error-messages"></div>
     </div>
     <!-- 资源缺失提示 -->
     <div class="resource-error" id="resource-error">
         <h2><i class="fas fa-exclamation-triangle"></i> <span data-lang="resource_error_title"></span></h2>
         <p data-lang="resource_error_message"></p>
         <p data-lang="resource_error_structure"></p>
-        <pre style="background: var(--tile); padding: 15px; border-radius: 8px; margin: 15px 0; text-align: left; max-width: 80%;">
+        <pre
+            style="background: var(--tile); padding: 15px; border-radius: 8px; margin: 15px 0; text-align: left; max-width: 80%;">
 root/
 ├── index.html
 └── assets/
@@ -42,9 +47,9 @@ root/
             <i class="fas fa-sync-alt"></i> <span data-lang="reload_btn"></span>
         </button>
     </div>
-  
+
     <div class="title-decoration"></div>
-  
+
     <!-- 顶部标题栏 -->
     <div class="header">
         <div class="logo">
@@ -79,7 +84,7 @@ root/
             </button>
         </div>
     </div>
-  
+
     <!-- 移动端组件面板切换按钮 -->
     <button class="mobile-panel-toggle" id="mobile-panel-toggle">
         <i class="fas fa-cubes"></i>
@@ -96,7 +101,7 @@ root/
                     <i class="fas fa-times"></i>
                 </button>
             </div>
-          
+
             <div class="search-container">
                 <i class="fas fa-search search-icon"></i>
                 <input type="text" id="component-search" data-lang="search_placeholder">
@@ -105,7 +110,7 @@ root/
                 <!-- 组件分类将在这里动态生成 -->
             </div>
         </div>
-      
+
         <!-- 右侧画布区域 -->
         <div id="canvas-container">
             <canvas id="canvas"></canvas>
@@ -151,7 +156,7 @@ root/
             <span data-lang="theme_btn"></span>
         </button>
     </div>
-  
+
     <!-- 底部工具栏和状态栏 -->
     <div class="bottom-container">
         <!-- 状态栏 -->
@@ -173,28 +178,29 @@ root/
             </div>
         </div>
     </div>
-        <!-- 截图预览模态框 -->
-        <div class="modal" id="screenshot-modal">
-          <div class="modal-content">
+    <!-- 截图预览模态框 -->
+    <div class="modal" id="screenshot-modal">
+        <div class="modal-content">
             <div class="modal-header">
-              <h2><i class="fas fa-camera"></i> <span data-lang="screenshot_modal_title"></span></h2>
-              <button class="close-modal modal-trigger">&times;</button>
+                <h2><i class="fas fa-camera"></i> <span data-lang="screenshot_modal_title"></span></h2>
+                <button class="close-modal modal-trigger">&times;</button>
             </div>
             <div class="modal-body" style="text-align: center;">
-              <canvas id="screenshot-preview" style="max-width: 100%; border: 1px solid var(--border); border-radius: 8px;"></canvas>
-              <div id="screenshot-info" style="margin-top: 10px; color: var(--text); font-size: 0.9rem;"></div>
+                <canvas id="screenshot-preview"
+                    style="max-width: 100%; border: 1px solid var(--border); border-radius: 8px;"></canvas>
+                <div id="screenshot-info" style="margin-top: 10px; color: var(--text); font-size: 0.9rem;"></div>
             </div>
             <div class="modal-footer">
-              <button class="modal-btn secondary-btn close-modal modal-trigger">
-                <i class="fas fa-times"></i> <span data-lang="close_btn"></span>
-              </button>
-              <button class="modal-btn primary-btn modal-trigger" id="download-screenshot">
-                <i class="fas fa-download"></i> <span data-lang="download_screenshot_btn"></span>
-              </button>
+                <button class="modal-btn secondary-btn close-modal modal-trigger">
+                    <i class="fas fa-times"></i> <span data-lang="close_btn"></span>
+                </button>
+                <button class="modal-btn primary-btn modal-trigger" id="download-screenshot">
+                    <i class="fas fa-download"></i> <span data-lang="download_screenshot_btn"></span>
+                </button>
             </div>
-          </div>
         </div>
-  
+    </div>
+
     <!-- 保存模态框 -->
     <div class="modal" id="save-modal">
         <div class="modal-content">
@@ -204,11 +210,13 @@ root/
             </div>
             <div class="modal-body">
                 <div class="input-group">
-                    <label for="design-name"><i class="fas fa-tag"></i> <span data-lang="design_name_label"></span></label>
+                    <label for="design-name"><i class="fas fa-tag"></i> <span
+                            data-lang="design_name_label"></span></label>
                     <input type="text" id="design-name" data-lang="design_name_placeholder">
                 </div>
                 <div class="input-group">
-                    <label for="design-description"><i class="fas fa-align-left"></i> <span data-lang="design_description_label"></span></label>
+                    <label for="design-description"><i class="fas fa-align-left"></i> <span
+                            data-lang="design_description_label"></span></label>
                     <input type="text" id="design-description" data-lang="design_description_placeholder">
                 </div>
             </div>
@@ -222,7 +230,7 @@ root/
             </div>
         </div>
     </div>
-  
+
     <!-- 导入模态框 -->
     <div class="modal" id="load-modal">
         <div class="modal-content">
@@ -253,7 +261,7 @@ root/
             </div>
         </div>
     </div>
-  
+
     <!-- 清空确认模态框 -->
     <div class="modal" id="clear-confirm-modal">
         <div class="modal-content">
@@ -278,56 +286,58 @@ root/
             </div>
         </div>
     </div>
-  
+
     <!-- 帮助模态框 -->
     <div class="modal" id="help-modal">
-    <div class="modal-content">
-        <div class="modal-header">
-            <h2><i class="fas fa-question-circle"></i> <span data-lang="help_modal_title"></span></h2>
-            <button class="close-modal modal-trigger">&times;</button>
-        </div>
-        <div class="modal-body">
-            <div class="help-content">
-                <h3><i class="fas fa-mouse-pointer"></i> <span data-lang="basic_operations_title"></span></h3>
-                <ul>
-                    <li data-lang="basic_operation_1"></li>
-                    <li data-lang="basic_operation_2"></li>
-                    <li data-lang="basic_operation_3"></li>
-                    <li data-lang="basic_operation_4"></li>
-                    <li data-lang="basic_operation_5"></li>
-                </ul>
-                <h3><i class="fas fa-search"></i> <span data-lang="search_function_title"></span></h3>
-                <ul>
-                    <li data-lang="search_function_1"></li>
-                    <li data-lang="search_function_2"></li>
-                    <li data-lang="search_function_3"></li>
-                    <li data-lang="search_function_4"></li>
-                </ul>
-              
-                <h3><i class="fas fa-search"></i> <span data-lang="zoom_controls_title"></span></h3>
-                <ul>
-                    <li><i class="fas fa-search-plus"></i> <span data-lang="zoom_control_1"></span></li>
-                    <li><i class="fas fa-search-minus"></i> <span data-lang="zoom_control_2"></span></li>
-                    <li><i class="fas fa-sync-alt"></i> <span data-lang="zoom_control_3"></span></li>
-                </ul>
-              
-                <h3><i class="fas fa-user"></i> <span data-lang="project_info_title"></span></h3>
-                <ul>
-                    <li data-lang="project_info_version"></li>
-                    <li>BILIBILI: <a href="https://space.bilibili.com/1917782316" target="_blank" data-lang="project_info_bilibili"></a></li>
-                    <li>E-MAIL: <a href="mailto:ZXBHELLO@GMAIL.COM" data-lang="project_info_email"></a></li>
-                    <li>GITHUB: <a href="https://github.com/ZXBHELLO/MinecraftRedStoneEditor-2D" target="_blank" data-lang="project_info_github"></a></li>
-                    <li data-lang="project_info_feedback"></li>
-                </ul>
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2><i class="fas fa-question-circle"></i> <span data-lang="help_modal_title"></span></h2>
+                <button class="close-modal modal-trigger">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="help-content">
+                    <h3><i class="fas fa-mouse-pointer"></i> <span data-lang="basic_operations_title"></span></h3>
+                    <ul>
+                        <li data-lang="basic_operation_1"></li>
+                        <li data-lang="basic_operation_2"></li>
+                        <li data-lang="basic_operation_3"></li>
+                        <li data-lang="basic_operation_4"></li>
+                        <li data-lang="basic_operation_5"></li>
+                    </ul>
+                    <h3><i class="fas fa-search"></i> <span data-lang="search_function_title"></span></h3>
+                    <ul>
+                        <li data-lang="search_function_1"></li>
+                        <li data-lang="search_function_2"></li>
+                        <li data-lang="search_function_3"></li>
+                        <li data-lang="search_function_4"></li>
+                    </ul>
+
+                    <h3><i class="fas fa-search"></i> <span data-lang="zoom_controls_title"></span></h3>
+                    <ul>
+                        <li><i class="fas fa-search-plus"></i> <span data-lang="zoom_control_1"></span></li>
+                        <li><i class="fas fa-search-minus"></i> <span data-lang="zoom_control_2"></span></li>
+                        <li><i class="fas fa-sync-alt"></i> <span data-lang="zoom_control_3"></span></li>
+                    </ul>
+
+                    <h3><i class="fas fa-user"></i> <span data-lang="project_info_title"></span></h3>
+                    <ul>
+                        <li data-lang="project_info_version"></li>
+                        <li>BILIBILI: <a href="https://space.bilibili.com/1917782316" target="_blank"
+                                data-lang="project_info_bilibili"></a></li>
+                        <li>E-MAIL: <a href="mailto:ZXBHELLO@GMAIL.COM" data-lang="project_info_email"></a></li>
+                        <li>GITHUB: <a href="https://github.com/ZXBHELLO/MinecraftRedStoneEditor-2D" target="_blank"
+                                data-lang="project_info_github"></a></li>
+                        <li data-lang="project_info_feedback"></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="modal-btn primary-btn close-modal modal-trigger">
+                    <i class="fas fa-check"></i> <span data-lang="close_btn"></span>
+                </button>
             </div>
         </div>
-        <div class="modal-footer">
-            <button class="modal-btn primary-btn close-modal modal-trigger">
-                <i class="fas fa-check"></i> <span data-lang="close_btn"></span>
-            </button>
-        </div>
     </div>
-</div>
     <script src="https://cdn.jsdelivr.net/npm/js-pinyin@0.2.7/pinyin.js"></script>
     <script src="scripts/components.js"></script>
     <script src="scripts/placements.js"></script>
@@ -338,4 +348,5 @@ root/
     <script src="scripts/main.js"></script>
     <script src="scripts/lang.js"></script>
 </body>
+
 </html>
