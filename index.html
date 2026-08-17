@@ -44,7 +44,7 @@ root/
     ...
         </pre>
         <p data-lang="resource_error_hint"></p>
-        <button class="btn primary-btn" id="reload-btn" style="margin-top: 20px;">
+        <button class="btn primary-btn" id="reload-btn">
             <i class="fas fa-sync-alt"></i> <span data-lang="reload_btn"></span>
         </button>
     </div>
@@ -106,13 +106,13 @@ root/
         <section id="canvas-container" aria-label="画布">
             <canvas id="canvas"></canvas>
             <div class="zoom-controls">
-                <button class="zoom-btn" id="zoom-out" title="zoom_control_2" aria-label="缩小">
+                <button class="zoom-btn" id="zoom-out" title="zoom_control_2" data-lang-title="zoom_control_2" aria-label="缩小">
                     <i class="fas fa-search-minus"></i>
                 </button>
-                <button class="zoom-btn" id="zoom-reset" title="zoom_control_3" aria-label="重置缩放">
+                <button class="zoom-btn" id="zoom-reset" title="zoom_control_3" data-lang-title="zoom_control_3" aria-label="重置缩放">
                     <i class="fas fa-sync-alt"></i>
                 </button>
-                <button class="zoom-btn" id="zoom-in" title="zoom_control_1" aria-label="放大">
+                <button class="zoom-btn" id="zoom-in" title="zoom_control_1" data-lang-title="zoom_control_1" aria-label="放大">
                     <i class="fas fa-search-plus"></i>
                 </button>
             </div>
@@ -180,9 +180,9 @@ root/
                 <h2 id="screenshot-title"><i class="fas fa-camera"></i> <span data-lang="screenshot_modal_title"></span></h2>
                 <button class="close-modal" aria-label="关闭">&times;</button>
             </div>
-            <div class="modal-body" style="text-align: center;">
+            <div class="modal-body screenshot-modal-body">
                 <canvas id="screenshot-preview"></canvas>
-                <div id="screenshot-info" style="margin-top: 10px; color: var(--text-secondary); font-size: 0.9rem;"></div>
+                <div id="screenshot-info"></div>
             </div>
             <div class="modal-footer">
                 <button class="modal-btn secondary-btn close-modal">
@@ -237,7 +237,7 @@ root/
                         <div class="file-drop-text" data-lang="file_drop_text"></div>
                         <div class="file-drop-hint" data-lang="file_drop_hint"></div>
                     </div>
-                    <input type="file" id="load-file" accept=".json" style="display: none;" aria-label="选择设计文件">
+                    <input type="file" id="load-file" accept=".json" aria-label="选择设计文件">
                 </div>
                 <div class="load-status" id="load-status">
                     <i class="fas fa-info-circle"></i> <span data-lang="load_status"></span>
@@ -296,6 +296,17 @@ root/
                         <li data-lang="basic_operation_4"></li>
                         <li data-lang="basic_operation_5"></li>
                     </ul>
+                    <h3><i class="fas fa-keyboard"></i> <span data-lang="keyboard_shortcuts_title"></span></h3>
+                    <ul>
+                        <li><kbd>Ctrl</kbd> + <kbd>Z</kbd> <span data-lang="shortcut_undo"></span></li>
+                        <li><kbd>Ctrl</kbd> + <kbd>Y</kbd> <span data-lang="shortcut_redo"></span></li>
+                    </ul>
+                    <h3><i class="fas fa-hand-pointer"></i> <span data-lang="touch_operations_title"></span></h3>
+                    <ul>
+                        <li data-lang="touch_operation_1"></li>
+                        <li data-lang="touch_operation_2"></li>
+                        <li data-lang="touch_operation_3"></li>
+                    </ul>
                     <h3><i class="fas fa-search"></i> <span data-lang="search_function_title"></span></h3>
                     <ul>
                         <li data-lang="search_function_1"></li>
@@ -303,7 +314,7 @@ root/
                         <li data-lang="search_function_3"></li>
                         <li data-lang="search_function_4"></li>
                     </ul>
-                    <h3><i class="fas fa-search"></i> <span data-lang="zoom_controls_title"></span></h3>
+                    <h3><i class="fas fa-search-plus"></i> <span data-lang="zoom_controls_title"></span></h3>
                     <ul>
                         <li><i class="fas fa-search-plus"></i> <span data-lang="zoom_control_1"></span></li>
                         <li><i class="fas fa-search-minus"></i> <span data-lang="zoom_control_2"></span></li>
@@ -327,7 +338,6 @@ root/
         </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/js-pinyin@0.2.7/pinyin.js"></script>
     <script src="scripts/lang.js"></script>
     <script src="scripts/utils.js"></script>
     <script src="scripts/components.js"></script>

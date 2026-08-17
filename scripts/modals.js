@@ -1,5 +1,18 @@
-// Modal management and design save/load operations
+/**
+ * 弹窗管理模块：通用弹窗开关、保存/导入/清空/帮助/截图等业务弹窗。
+ *
+ * 弹窗机制：
+ * - 所有弹窗复用 .modal 结构；openModal 显示 + 淡入，closeAllModals 淡出后隐藏
+ * - 点击遮罩或关闭按钮（.close-modal）关闭；Esc 由 events.js 的 handleKeyDown 处理
+ * - 导入弹窗支持点击选择与拖放 JSON 文件
+ *
+ * 依赖：
+ * - utils.js（AppState / saveHistory / updateStatusBar / displayError / bindClick）
+ * - lang.js（lang）
+ * - canvas.js（openScreenshotPreview / downloadScreenshot / requestRender）
+ */
 
+/** 打开指定 id 的弹窗（display:flex 后下一帧加 .show 触发过渡动画） */
 function openModal(modalId) {
   const modal = document.getElementById(modalId);
   if (!modal) return;
@@ -7,6 +20,7 @@ function openModal(modalId) {
   requestAnimationFrame(() => modal.classList.add('show'));
 }
 
+/** 关闭所有弹窗：移除 .show 淡出，300ms 后隐藏 */
 function closeAllModals() {
   document.querySelectorAll('.modal').forEach(modal => {
     modal.classList.remove('show');
@@ -18,10 +32,12 @@ function closeAllModals() {
   });
 }
 
+/** 打开导出设计弹窗 */
 function openSaveModal() {
   openModal('save-modal');
 }
 
+/** 打开导入设计弹窗，并重置状态提示 */
 function openLoadModal() {
   openModal('load-modal');
   const statusElement = document.getElementById('load-status');
@@ -30,14 +46,17 @@ function openLoadModal() {
   }
 }
 
+/** 打开清空画布确认弹窗 */
 function openClearConfirmModal() {
   openModal('clear-confirm-modal');
 }
 
+/** 打开帮助弹窗 */
 function openHelpModal() {
   openModal('help-modal');
 }
 
+/** 清空画布：重置网格、记录历史、关闭弹窗并重绘 */
 function clearCanvas() {
   AppState.grid = {};
   updateStatusBar();
@@ -47,6 +66,7 @@ function clearCanvas() {
   requestRender();
 }
 
+/** 将当前设计导出为 JSON 文件下载 */
 function saveDesign() {
   const designName = document.getElementById('design-name').value.trim() || lang('untitled_design');
   const designDescription = document.getElementById('design-description').value.trim();
@@ -60,6 +80,7 @@ function saveDesign() {
     offsetY: AppState.offsetY
   };
 
+  // 通过 Blob + 临时 <a> 触发下载
   const jsonData = JSON.stringify(designData);
   const blob = new Blob([jsonData], { type: 'application/json' });
   const url = URL.createObjectURL(blob);
@@ -80,6 +101,7 @@ function saveDesign() {
   AppState.hasChanges = false;
 }
 
+/** 从选中的 JSON 文件导入设计并应用 */
 function loadDesign() {
   const fileInput = document.getElementById('load-file');
   const statusElement = document.getElementById('load-status');
@@ -101,7 +123,7 @@ function loadDesign() {
       updateZoomDisplay();
       closeAllModals();
       AppState.hasChanges = false;
-      saveHistory();
+      saveHistory(); // 导入结果作为新的历史起点
       requestRender();
       if (statusElement) {
         statusElement.innerHTML = `<i class="fas fa-check-circle"></i> ${lang('load_success')}`;
@@ -124,28 +146,34 @@ function loadDesign() {
   reader.readAsText(file);
 }
 
+/** 绑定弹窗相关按钮与文件拖放区域的事件 */
 function setupModalEventListeners() {
+  // 顶栏按钮 → 打开对应弹窗
   bindClick('save-btn', openSaveModal);
   bindClick('load-btn', openLoadModal);
   bindClick('clear-btn', openClearConfirmModal);
   bindClick('help-btn', openHelpModal);
   bindClick('save-screen', openScreenshotPreview);
 
+  // 弹窗内的确认按钮
   bindClick('confirm-save', saveDesign);
   bindClick('confirm-load', loadDesign);
   bindClick('confirm-clear', clearCanvas);
   bindClick('download-screenshot', downloadScreenshot);
 
+  // 所有 .close-modal 按钮关闭全部弹窗
   document.querySelectorAll('.close-modal').forEach(btn => {
     btn.addEventListener('click', closeAllModals);
   });
 
+  // 点击弹窗遮罩（空白区域）关闭
   document.querySelectorAll('.modal').forEach(modal => {
     modal.addEventListener('click', (e) => {
       if (e.target === modal) closeAllModals();
     });
   });
 
+  // 导入弹窗的文件选择与拖放
   const fileDropArea = document.getElementById('file-drop-area');
   const fileInput = document.getElementById('load-file');
   const loadStatus = document.getElementById('load-status');
