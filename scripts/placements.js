@@ -1,113 +1,76 @@
+// Block placement logic with connected-block handling
+
 let isPlacing = false;
 
-function setBlock(gridX, gridY, selectedComponent){
-  if (gridX >= 0 && gridX < canvasSize && gridY >= 0 && gridY < canvasSize) {
-    const key = `${gridX},${gridY}`;
-    
-    // 检查是否有实际变化
-    const oldValue = grid[key];
-    const willDelete = (oldValue === selectedComponent || selectedComponent === 'air');
-    const willAdd = (selectedComponent !== 'air' && oldValue !== selectedComponent);
-    
-    // 如果没有实际变化，直接返回
-    if ((willDelete && !oldValue) || (!willDelete && !willAdd)) {
-      return;
-    }
-    
-    // 最外层调用时保存历史记录
-    if (!isPlacing) {
-      isPlacing = true;
-      // 延迟保存，确保所有递归操作完成
-      setTimeout(function() {
-        saveHistory();
-        isPlacing = false;
-      }, 0);
-    }
-    
-    if (grid[key] === selectedComponent || selectedComponent === 'air') {
-        delete grid[key];
-    } else if (selectedComponent !== 'air') {
-        grid[key] = selectedComponent;
-    }
-    checkConnectedPlacement(gridX, gridY, selectedComponent);
-    hasChanges = true;
-    updateStatusBar();
+const CONNECTED_BLOCKS = {
+  doubleChests: {
+    chestdl: { dx: 1, dy: 0, pair: 'chestdr' },
+    chestdr: { dx: -1, dy: 0, pair: 'chestdl' }
+  }
+};
+
+function setBlock(gridX, gridY, componentId) {
+  if (gridX < 0 || gridX >= canvasSize || gridY < 0 || gridY >= canvasSize) return;
+
+  const key = `${gridX},${gridY}`;
+  const oldValue = AppState.grid[key];
+
+  // 负负得正：再次点击相同组件或点击空气 → 删除该格组件
+  const shouldRemove = componentId === 'air' || oldValue === componentId;
+  if (oldValue === undefined && shouldRemove) return; // 空格上无操作
+
+  const shouldSaveHistory = !isPlacing;
+  if (shouldSaveHistory) isPlacing = true;
+
+  if (shouldRemove) {
+    delete AppState.grid[key];
+    handleConnectedBlocks(gridX, gridY, 'air');
+  } else {
+    AppState.grid[key] = componentId;
+    handleConnectedBlocks(gridX, gridY, componentId);
+  }
+
+  AppState.hasChanges = true;
+  updateStatusBar();
+  requestRender();
+
+  if (shouldSaveHistory) {
+    saveHistory();
+    isPlacing = false;
   }
 }
-function checkConnectedPlacement(x, y, block) {
-  const pistonPairs = {
-    pistonbodyu: { dx: 0, dy: -1, head: "pistonheadu" },
-    pistonbodyd: { dx: 0, dy: 1, head: "pistonheadd" },
-    pistonbodyl: { dx: -1, dy: 0, head: "pistonheadl" },
-    pistonbodyr: { dx: 1, dy: 0, head: "pistonheadr" },
-  };
 
-  const pistonHeads = {
-    pistonheadu: { dx: 0, dy: 1, body: "pistonbodyu" },
-    pistonheadd: { dx: 0, dy: -1, body: "pistonbodyd" },
-    pistonheadl: { dx: 1, dy: 0, body: "pistonbodyl" },
-    pistonheadr: { dx: -1, dy: 0, body: "pistonbodyr" },
-    stickypistonheadu: { dx: 0, dy: 1, body: "pistonbodyu" },
-    stickypistonheadd: { dx: 0, dy: -1, body: "pistonbodyd" },
-    stickypistonheadl: { dx: 1, dy: 0, body: "pistonbodyl" },
-    stickypistonheadr: { dx: -1, dy: 0, body: "pistonbodyr" },
-  };
-  const doorPairs = {
-    iron_door_bottom: { dx: 0, dy: -1, pair: "iron_door_top" },
-    iron_door_top: { dx: 0, dy: 1, pair: "iron_door_bottom" },
-  };
-  const doubleChests = {
-    chestdl: { dx: 1, dy: 0, pair: "chestdr" },
-    chestdr: { dx: -1, dy: 0, pair: "chestdl" },
-  };
-  
+function handleConnectedBlocks(x, y, block) {
   const key = `${x},${y}`;
-  const current = grid[key];
+  const current = AppState.grid[key];
 
-  if (pistonPairs[block]) {
-    const { dx, dy, head } = pistonPairs[block];
-    const headKey = `${x + dx},${y + dy}`;
-    if (!grid[headKey]) {
-      setBlock(x + dx, y + dy, head);
-    }
+  const doubleChest = CONNECTED_BLOCKS.doubleChests[block];
+  if (doubleChest) {
+    placeConnectedBlock(x + doubleChest.dx, y + doubleChest.dy, doubleChest.pair);
+    return;
   }
 
-  else if (pistonHeads[block]) {
-    const { dx, dy, body } = pistonHeads[block];
-    const bodyKey = `${x + dx},${y + dy}`;
-    if (!grid[bodyKey]) {
-      setBlock(x + dx, y + dy, body);
-    }
+  if (!current) {
+    removeOrphanedConnectedBlocks(x, y);
   }
-  else if (doubleChests[block]) {
-    const { dx, dy, pair } = doubleChests[block];
-    if (!grid[`${x + dx},${y + dy}`]) setBlock(x + dx, y + dy, pair);
-  }
-  else if (doorPairs[block]) {
-    const { dx, dy, pair } = doorPairs[block];
-    if (!grid[`${x + dx},${y + dy}`]) setBlock(x + dx, y + dy, pair);
-  }
+}
 
-  else if (!current) {
-    for (const [body, { dx, dy, head }] of Object.entries(pistonPairs)) {
-      if (grid[`${x - dx},${y - dy}`] === body && grid[`${x},${y}`] === undefined) {
-        setBlock(x - dx, y - dy, 'air');
-      }
-    }
-    for (const [head, { dx, dy, body }] of Object.entries(pistonHeads)) {
-      if (grid[`${x - dx},${y - dy}`] === head && grid[`${x},${y}`] === undefined) {
-        setBlock(x - dx, y - dy, 'air');
-      }
-    }
-    for (const [chest, { dx, dy, pair }] of Object.entries(doubleChests)) {
-      if (grid[`${x - dx},${y - dy}`] === pair) {
-        setBlock(x - dx, y - dy, "air");
-      }
-    }
-    for (const [door, { dx, dy, pair }] of Object.entries(doorPairs)) {
-      if (grid[`${x - dx},${y - dy}`] === pair) {
-        setBlock(x - dx, y - dy, "air");
-      }
+function placeConnectedBlock(x, y, blockId) {
+  if (x < 0 || x >= canvasSize || y < 0 || y >= canvasSize) return;
+  const key = `${x},${y}`;
+  if (!AppState.grid[key]) {
+    AppState.grid[key] = blockId;
+  }
+}
+
+function removeOrphanedConnectedBlocks(x, y) {
+  const key = `${x},${y}`;
+
+  for (const [chest, { dx, dy, pair }] of Object.entries(CONNECTED_BLOCKS.doubleChests)) {
+    // pair 位于当前方块 +dx/+dy 方向（与放置逻辑一致）
+    const neighborKey = `${x + dx},${y + dy}`;
+    if (AppState.grid[neighborKey] === pair) {
+      delete AppState.grid[neighborKey];
     }
   }
 }

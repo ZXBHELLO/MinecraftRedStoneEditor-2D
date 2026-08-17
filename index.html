@@ -3,17 +3,18 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="theme-color" content="#f5f5f7" media="(prefers-color-scheme: light)">
+    <meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)">
     <title>Minecraft RedStone Editor</title>
-    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="styles.css">
-    <script src="scripts/lang.js"></script>
-    
 </head>
 
 <body>
-    <!-- 资源加载指示器 -->
+    <!-- Resource loader -->
     <div class="loader" id="resource-loader">
         <div class="loader-spinner"></div>
         <div class="loader-text" data-lang="loader_text"></div>
@@ -21,19 +22,19 @@
             <div class="loader-progress-bar" id="progress-bar"></div>
         </div>
     </div>
-    <!-- 错误提示 -->
-    <div id="error-display"
-        style="display: none; position: fixed; top: 10px; right: 10px; background: rgba(255, 0, 0, 0.8); color: white; padding: 10px; border-radius: 5px; z-index: 1000; max-width: 300px; font-size: 12px;">
+
+    <!-- Error display -->
+    <div id="error-display">
         <h3 data-lang="error_display_title"></h3>
         <div id="error-messages"></div>
     </div>
-    <!-- 资源缺失提示 -->
+
+    <!-- Resource error -->
     <div class="resource-error" id="resource-error">
         <h2><i class="fas fa-exclamation-triangle"></i> <span data-lang="resource_error_title"></span></h2>
         <p data-lang="resource_error_message"></p>
         <p data-lang="resource_error_structure"></p>
-        <pre
-            style="background: var(--tile); padding: 15px; border-radius: 8px; margin: 15px 0; text-align: left; max-width: 80%;">
+        <pre>
 root/
 ├── index.html
 └── assets/
@@ -48,118 +49,111 @@ root/
         </button>
     </div>
 
-    <div class="title-decoration"></div>
-
-    <!-- 顶部标题栏 -->
-    <div class="header">
+    <!-- Header -->
+    <header class="header">
         <div class="logo">
             <h1 data-lang="header_title"></h1>
         </div>
-        <div class="controls">
-            <button class="btn modal-trigger" id="language-toggle">
+        <nav class="controls">
+            <button class="btn" id="language-toggle" aria-label="切换语言">
                 <i class="fas fa-language"></i>
             </button>
-            <!-- 主题按钮 -->
-            <button class="btn modal-trigger" id="theme-toggle">
+            <button class="btn" id="theme-toggle" aria-label="切换主题">
                 <i class="fas fa-moon"></i>
             </button>
-            <!-- 重置缩放按钮（移动端显示） -->
-            <button class="btn modal-trigger mobile-only" id="zoom-reset-top" title="重置缩放">
+            <button class="btn mobile-only" id="zoom-reset-top" aria-label="重置缩放">
                 <i class="fas fa-compress-arrows-alt"></i>
             </button>
-            <button class="btn modal-trigger" id="clear-btn">
+            <button class="btn" id="clear-btn" aria-label="清空画布">
                 <i class="fas fa-broom"></i>
             </button>
-            <button class="btn modal-trigger" id="save-screen">
+            <button class="btn" id="save-screen" aria-label="截图">
                 <i class="fas fa-camera"></i>
             </button>
-            <button class="btn modal-trigger" id="save-btn">
+            <button class="btn" id="save-btn" aria-label="保存设计">
                 <i class="fas fa-save"></i>
             </button>
-            <button class="btn modal-trigger" id="load-btn">
+            <button class="btn" id="load-btn" aria-label="导入设计">
                 <i class="fas fa-folder-open"></i>
             </button>
-            <button class="btn modal-trigger" id="help-btn">
+            <button class="btn" id="help-btn" aria-label="帮助">
                 <i class="fas fa-question-circle"></i>
             </button>
-        </div>
-    </div>
+        </nav>
+    </header>
 
-    <!-- 移动端组件面板切换按钮 -->
-    <button class="mobile-panel-toggle" id="mobile-panel-toggle">
-        <i class="fas fa-cubes"></i>
-        <span data-lang="components_panel_title"></span>
-    </button>
-
-    <!-- 主内容区 -->
-    <div class="main-container">
-        <!-- 左侧组件面板 -->
-        <div id="components-panel" class="components-panel">
+    <!-- Main content -->
+    <main class="main-container">
+        <!-- Components panel -->
+        <aside id="components-panel" class="components-panel" aria-label="组件面板">
             <div class="panel-header">
                 <h2><i class="fas fa-cubes"></i> <span data-lang="components_panel_title"></span></h2>
-                <button class="panel-close-btn" id="panel-close-btn">
+                <button class="panel-close-btn" id="panel-close-btn" aria-label="关闭组件面板">
                     <i class="fas fa-times"></i>
                 </button>
             </div>
 
             <div class="search-container">
                 <i class="fas fa-search search-icon"></i>
-                <input type="text" id="component-search" data-lang="search_placeholder">
+                <input type="text" id="component-search" data-lang="search_placeholder" aria-label="搜索组件">
             </div>
             <div id="components-list">
-                <!-- 组件分类将在这里动态生成 -->
+                <!-- Component categories rendered here -->
             </div>
-        </div>
+        </aside>
 
-        <!-- 右侧画布区域 -->
-        <div id="canvas-container">
+        <!-- Canvas area -->
+        <section id="canvas-container" aria-label="画布">
             <canvas id="canvas"></canvas>
-            <!-- 缩放控件 -->
             <div class="zoom-controls">
-                <button class="zoom-btn" id="zoom-out" title="zoom_control_2">
+                <button class="zoom-btn" id="zoom-out" title="zoom_control_2" aria-label="缩小">
                     <i class="fas fa-search-minus"></i>
                 </button>
-                <button class="zoom-btn" id="zoom-reset" title="zoom_control_3">
+                <button class="zoom-btn" id="zoom-reset" title="zoom_control_3" aria-label="重置缩放">
                     <i class="fas fa-sync-alt"></i>
                 </button>
-                <button class="zoom-btn" id="zoom-in" title="zoom_control_1">
+                <button class="zoom-btn" id="zoom-in" title="zoom_control_1" aria-label="放大">
                     <i class="fas fa-search-plus"></i>
                 </button>
             </div>
-        </div>
-    </div>
+            <!-- Mobile component-panel toggle: anchored to the canvas corner like the desktop zoom controls -->
+            <button class="mobile-panel-toggle" id="mobile-panel-toggle" aria-label="打开组件面板">
+                <i class="fas fa-cubes"></i>
+                <span data-lang="components_panel_title"></span>
+            </button>
+        </section>
+    </main>
 
-    <!-- 移动端底部工具栏 -->
-    <div class="mobile-toolbar" id="mobile-toolbar">
-        <button class="mobile-tool-btn" id="mobile-undo-btn" title="撤销">
+    <!-- Mobile toolbar -->
+    <nav class="mobile-toolbar" id="mobile-toolbar" aria-label="移动端工具栏">
+        <button class="mobile-tool-btn" id="mobile-undo-btn" aria-label="撤销">
             <i class="fas fa-undo"></i>
             <span data-lang="undo_btn"></span>
         </button>
-        <button class="mobile-tool-btn" id="mobile-redo-btn" title="重做">
+        <button class="mobile-tool-btn" id="mobile-redo-btn" aria-label="重做">
             <i class="fas fa-redo"></i>
             <span data-lang="redo_btn"></span>
         </button>
-        <button class="mobile-tool-btn" id="mobile-clear-btn" title="清空">
+        <button class="mobile-tool-btn" id="mobile-clear-btn" aria-label="清空">
             <i class="fas fa-broom"></i>
             <span data-lang="clear_btn"></span>
         </button>
-        <button class="mobile-tool-btn" id="mobile-save-btn" title="保存">
+        <button class="mobile-tool-btn" id="mobile-save-btn" aria-label="保存">
             <i class="fas fa-save"></i>
             <span data-lang="save_btn"></span>
         </button>
-        <button class="mobile-tool-btn" id="mobile-load-btn" title="导入">
+        <button class="mobile-tool-btn" id="mobile-load-btn" aria-label="导入">
             <i class="fas fa-folder-open"></i>
             <span data-lang="load_btn"></span>
         </button>
-        <button class="mobile-tool-btn" id="mobile-theme-btn" title="主题">
+        <button class="mobile-tool-btn" id="mobile-theme-btn" aria-label="主题">
             <i class="fas fa-moon"></i>
             <span data-lang="theme_btn"></span>
         </button>
-    </div>
+    </nav>
 
-    <!-- 底部工具栏和状态栏 -->
-    <div class="bottom-container">
-        <!-- 状态栏 -->
+    <!-- Status bar -->
+    <footer class="bottom-container">
         <div class="status-bar">
             <div class="status-item" id="block-count">
                 <i class="fas fa-cube"></i> <span data-lang-dynamic="block_count"></span>
@@ -177,66 +171,64 @@ root/
                 <i class="fas fa-adjust"></i> <span data-lang-dynamic="theme_display"></span>
             </div>
         </div>
-    </div>
-    <!-- 截图预览模态框 -->
-    <div class="modal" id="screenshot-modal">
+    </footer>
+
+    <!-- Screenshot modal -->
+    <div class="modal" id="screenshot-modal" role="dialog" aria-modal="true" aria-labelledby="screenshot-title">
         <div class="modal-content">
             <div class="modal-header">
-                <h2><i class="fas fa-camera"></i> <span data-lang="screenshot_modal_title"></span></h2>
-                <button class="close-modal modal-trigger">&times;</button>
+                <h2 id="screenshot-title"><i class="fas fa-camera"></i> <span data-lang="screenshot_modal_title"></span></h2>
+                <button class="close-modal" aria-label="关闭">&times;</button>
             </div>
             <div class="modal-body" style="text-align: center;">
-                <canvas id="screenshot-preview"
-                    style="max-width: 100%; border: 1px solid var(--border); border-radius: 8px;"></canvas>
-                <div id="screenshot-info" style="margin-top: 10px; color: var(--text); font-size: 0.9rem;"></div>
+                <canvas id="screenshot-preview"></canvas>
+                <div id="screenshot-info" style="margin-top: 10px; color: var(--text-secondary); font-size: 0.9rem;"></div>
             </div>
             <div class="modal-footer">
-                <button class="modal-btn secondary-btn close-modal modal-trigger">
+                <button class="modal-btn secondary-btn close-modal">
                     <i class="fas fa-times"></i> <span data-lang="close_btn"></span>
                 </button>
-                <button class="modal-btn primary-btn modal-trigger" id="download-screenshot">
+                <button class="modal-btn primary-btn" id="download-screenshot">
                     <i class="fas fa-download"></i> <span data-lang="download_screenshot_btn"></span>
                 </button>
             </div>
         </div>
     </div>
 
-    <!-- 保存模态框 -->
-    <div class="modal" id="save-modal">
+    <!-- Save modal -->
+    <div class="modal" id="save-modal" role="dialog" aria-modal="true" aria-labelledby="save-title">
         <div class="modal-content">
             <div class="modal-header">
-                <h2><i class="fas fa-save"></i> <span data-lang="save_modal_title"></span></h2>
-                <button class="close-modal modal-trigger">&times;</button>
+                <h2 id="save-title"><i class="fas fa-save"></i> <span data-lang="save_modal_title"></span></h2>
+                <button class="close-modal" aria-label="关闭">&times;</button>
             </div>
             <div class="modal-body">
                 <div class="input-group">
-                    <label for="design-name"><i class="fas fa-tag"></i> <span
-                            data-lang="design_name_label"></span></label>
-                    <input type="text" id="design-name" data-lang="design_name_placeholder">
+                    <label for="design-name"><i class="fas fa-tag"></i> <span data-lang="design_name_label"></span></label>
+                    <input type="text" id="design-name" data-lang="design_name_placeholder" aria-label="设计名称">
                 </div>
                 <div class="input-group">
-                    <label for="design-description"><i class="fas fa-align-left"></i> <span
-                            data-lang="design_description_label"></span></label>
-                    <input type="text" id="design-description" data-lang="design_description_placeholder">
+                    <label for="design-description"><i class="fas fa-align-left"></i> <span data-lang="design_description_label"></span></label>
+                    <input type="text" id="design-description" data-lang="design_description_placeholder" aria-label="设计描述">
                 </div>
             </div>
             <div class="modal-footer">
-                <button class="modal-btn secondary-btn close-modal modal-trigger">
+                <button class="modal-btn secondary-btn close-modal">
                     <i class="fas fa-times"></i> <span data-lang="cancel_btn"></span>
                 </button>
-                <button class="modal-btn primary-btn modal-trigger" id="confirm-save">
+                <button class="modal-btn primary-btn" id="confirm-save">
                     <i class="fas fa-save"></i> <span data-lang="confirm_save_btn"></span>
                 </button>
             </div>
         </div>
     </div>
 
-    <!-- 导入模态框 -->
-    <div class="modal" id="load-modal">
+    <!-- Load modal -->
+    <div class="modal" id="load-modal" role="dialog" aria-modal="true" aria-labelledby="load-title">
         <div class="modal-content">
             <div class="modal-header">
-                <h2><i class="fas fa-folder-open"></i> <span data-lang="load_modal_title"></span></h2>
-                <button class="close-modal modal-trigger">&times;</button>
+                <h2 id="load-title"><i class="fas fa-folder-open"></i> <span data-lang="load_modal_title"></span></h2>
+                <button class="close-modal" aria-label="关闭">&times;</button>
             </div>
             <div class="modal-body">
                 <div class="file-upload">
@@ -245,29 +237,29 @@ root/
                         <div class="file-drop-text" data-lang="file_drop_text"></div>
                         <div class="file-drop-hint" data-lang="file_drop_hint"></div>
                     </div>
-                    <input type="file" id="load-file" accept=".json" style="display: none;">
+                    <input type="file" id="load-file" accept=".json" style="display: none;" aria-label="选择设计文件">
                 </div>
                 <div class="load-status" id="load-status">
                     <i class="fas fa-info-circle"></i> <span data-lang="load_status"></span>
                 </div>
             </div>
             <div class="modal-footer">
-                <button class="modal-btn secondary-btn close-modal modal-trigger">
+                <button class="modal-btn secondary-btn close-modal">
                     <i class="fas fa-times"></i> <span data-lang="cancel_btn"></span>
                 </button>
-                <button class="modal-btn primary-btn modal-trigger" id="confirm-load">
+                <button class="modal-btn primary-btn" id="confirm-load">
                     <i class="fas fa-file-import"></i> <span data-lang="confirm_load_btn"></span>
                 </button>
             </div>
         </div>
     </div>
 
-    <!-- 清空确认模态框 -->
-    <div class="modal" id="clear-confirm-modal">
+    <!-- Clear confirm modal -->
+    <div class="modal" id="clear-confirm-modal" role="dialog" aria-modal="true" aria-labelledby="clear-title">
         <div class="modal-content">
             <div class="modal-header">
-                <h2><i class="fas fa-broom"></i> <span data-lang="clear_confirm_modal_title"></span></h2>
-                <button class="close-modal modal-trigger">&times;</button>
+                <h2 id="clear-title"><i class="fas fa-broom"></i> <span data-lang="clear_confirm_modal_title"></span></h2>
+                <button class="close-modal" aria-label="关闭">&times;</button>
             </div>
             <div class="modal-body">
                 <div class="confirmation-message">
@@ -277,22 +269,22 @@ root/
                 </div>
             </div>
             <div class="modal-footer">
-                <button class="modal-btn secondary-btn close-modal modal-trigger">
+                <button class="modal-btn secondary-btn close-modal">
                     <i class="fas fa-times"></i> <span data-lang="cancel_btn"></span>
                 </button>
-                <button class="modal-btn primary-btn modal-trigger" id="confirm-clear">
+                <button class="modal-btn primary-btn" id="confirm-clear">
                     <i class="fas fa-check"></i> <span data-lang="confirm_clear_btn"></span>
                 </button>
             </div>
         </div>
     </div>
 
-    <!-- 帮助模态框 -->
-    <div class="modal" id="help-modal">
+    <!-- Help modal -->
+    <div class="modal" id="help-modal" role="dialog" aria-modal="true" aria-labelledby="help-title">
         <div class="modal-content">
             <div class="modal-header">
-                <h2><i class="fas fa-question-circle"></i> <span data-lang="help_modal_title"></span></h2>
-                <button class="close-modal modal-trigger">&times;</button>
+                <h2 id="help-title"><i class="fas fa-question-circle"></i> <span data-lang="help_modal_title"></span></h2>
+                <button class="close-modal" aria-label="关闭">&times;</button>
             </div>
             <div class="modal-body">
                 <div class="help-content">
@@ -311,42 +303,39 @@ root/
                         <li data-lang="search_function_3"></li>
                         <li data-lang="search_function_4"></li>
                     </ul>
-
                     <h3><i class="fas fa-search"></i> <span data-lang="zoom_controls_title"></span></h3>
                     <ul>
                         <li><i class="fas fa-search-plus"></i> <span data-lang="zoom_control_1"></span></li>
                         <li><i class="fas fa-search-minus"></i> <span data-lang="zoom_control_2"></span></li>
                         <li><i class="fas fa-sync-alt"></i> <span data-lang="zoom_control_3"></span></li>
                     </ul>
-
                     <h3><i class="fas fa-user"></i> <span data-lang="project_info_title"></span></h3>
                     <ul>
                         <li data-lang="project_info_version"></li>
-                        <li>BILIBILI: <a href="https://space.bilibili.com/1917782316" target="_blank"
-                                data-lang="project_info_bilibili"></a></li>
+                        <li>BILIBILI: <a href="https://space.bilibili.com/1917782316" target="_blank" data-lang="project_info_bilibili"></a></li>
                         <li>E-MAIL: <a href="mailto:ZXBHELLO@GMAIL.COM" data-lang="project_info_email"></a></li>
-                        <li>GITHUB: <a href="https://github.com/ZXBHELLO/MinecraftRedStoneEditor-2D" target="_blank"
-                                data-lang="project_info_github"></a></li>
+                        <li>GITHUB: <a href="https://github.com/ZXBHELLO/MinecraftRedStoneEditor-2D" target="_blank" data-lang="project_info_github"></a></li>
                         <li data-lang="project_info_feedback"></li>
                     </ul>
                 </div>
             </div>
             <div class="modal-footer">
-                <button class="modal-btn primary-btn close-modal modal-trigger">
+                <button class="modal-btn primary-btn close-modal">
                     <i class="fas fa-check"></i> <span data-lang="close_btn"></span>
                 </button>
             </div>
         </div>
     </div>
+
     <script src="https://cdn.jsdelivr.net/npm/js-pinyin@0.2.7/pinyin.js"></script>
+    <script src="scripts/lang.js"></script>
+    <script src="scripts/utils.js"></script>
     <script src="scripts/components.js"></script>
     <script src="scripts/placements.js"></script>
-    <script src="scripts/utils.js"></script>
     <script src="scripts/canvas.js"></script>
     <script src="scripts/events.js"></script>
     <script src="scripts/modals.js"></script>
     <script src="scripts/main.js"></script>
-    <script src="scripts/lang.js"></script>
 </body>
 
 </html>

@@ -1,142 +1,182 @@
+// Modal management and design save/load operations
+
+function openModal(modalId) {
+  const modal = document.getElementById(modalId);
+  if (!modal) return;
+  modal.style.display = 'flex';
+  requestAnimationFrame(() => modal.classList.add('show'));
+}
+
+function closeAllModals() {
+  document.querySelectorAll('.modal').forEach(modal => {
+    modal.classList.remove('show');
+    setTimeout(() => {
+      if (!modal.classList.contains('show')) {
+        modal.style.display = 'none';
+      }
+    }, 300);
+  });
+}
+
 function openSaveModal() {
-  try {
-    document.getElementById('save-modal').style.display = 'flex';
-    setTimeout(() => document.getElementById('save-modal').classList.add('show'), 10);
-  } catch (error) {
-    displayError(`openSaveModal error: ${error.message}`);
-  }
+  openModal('save-modal');
 }
 
 function openLoadModal() {
-  try {
-    document.getElementById('load-modal').style.display = 'flex';
-    setTimeout(() => document.getElementById('load-modal').classList.add('show'), 10);
-    document.getElementById('load-status').innerHTML = '<i class="fas fa-info-circle"></i> 请选择或拖放JSON设计文件';
-  } catch (error) {
-    displayError(`openLoadModal error: ${error.message}`);
+  openModal('load-modal');
+  const statusElement = document.getElementById('load-status');
+  if (statusElement) {
+    statusElement.innerHTML = `<i class="fas fa-info-circle"></i> ${lang('load_status')}`;
   }
 }
 
 function openClearConfirmModal() {
-  try {
-    document.getElementById('clear-confirm-modal').style.display = 'flex';
-    setTimeout(() => document.getElementById('clear-confirm-modal').classList.add('show'), 10);
-  } catch (error) {
-    displayError(`openClearConfirmModal error: ${error.message}`);
-  }
+  openModal('clear-confirm-modal');
 }
 
 function openHelpModal() {
-  try {
-    document.getElementById('help-modal').style.display = 'flex';
-    setTimeout(() => document.getElementById('help-modal').classList.add('show'), 10);
-  } catch (error) {
-    displayError(`openHelpModal error: ${error.message}`);
-  }
-}
-
-function closeAllModals() {
-  try {
-    document.querySelectorAll('.modal').forEach(modal => {
-      modal.classList.remove('show');
-      setTimeout(() => {
-        modal.style.display = 'none';
-      }, 300);
-    });
-  } catch (error) {
-    displayError(`closeAllModals error: ${error.message}`);
-  }
+  openModal('help-modal');
 }
 
 function clearCanvas() {
-  try {
-    grid = {};
-    updateStatusBar();
-    hasChanges = true;
-    closeAllModals();
-    // 保存历史记录
-    saveHistory();
-  } catch (error) {
-    displayError(`clearCanvas error: ${error.message}`);
-  }
+  AppState.grid = {};
+  updateStatusBar();
+  AppState.hasChanges = true;
+  closeAllModals();
+  saveHistory();
+  requestRender();
 }
 
 function saveDesign() {
-  try {
-    const designName = document.getElementById('design-name').value.trim() || '未命名设计';
-    const designDescription = document.getElementById('design-description').value.trim();
-    const designData = {
-      name: designName,
-      description: designDescription,
-      grid: grid,
-      timestamp: new Date().toISOString(),
-      scale: canvasScale,
-      offsetX: offsetX,
-      offsetY: offsetY
-    };
-    const jsonData = JSON.stringify(designData);
-    const blob = new Blob([jsonData], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `${designName.replace(/\s+/g, '_')}_红石设计.json`;
-    document.body.appendChild(a);
-    a.click();
-    setTimeout(() => {
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
-    }, 100);
-    closeAllModals();
-    document.getElementById('design-name').value = '';
-    document.getElementById('design-description').value = '';
-    hasChanges = false;
-  } catch (error) {
-    displayError(`saveDesign error: ${error.message}`);
-  }
+  const designName = document.getElementById('design-name').value.trim() || lang('untitled_design');
+  const designDescription = document.getElementById('design-description').value.trim();
+  const designData = {
+    name: designName,
+    description: designDescription,
+    grid: AppState.grid,
+    timestamp: new Date().toISOString(),
+    scale: AppState.canvasScale,
+    offsetX: AppState.offsetX,
+    offsetY: AppState.offsetY
+  };
+
+  const jsonData = JSON.stringify(designData);
+  const blob = new Blob([jsonData], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `${designName.replace(/\s+/g, '_')}_${lang('design_file_suffix')}.json`;
+  document.body.appendChild(a);
+  a.click();
+
+  setTimeout(() => {
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }, 100);
+
+  closeAllModals();
+  document.getElementById('design-name').value = '';
+  document.getElementById('design-description').value = '';
+  AppState.hasChanges = false;
 }
 
 function loadDesign() {
-  try {
-    const fileInput = document.getElementById('load-file');
-    const statusElement = document.getElementById('load-status');
-    if (!fileInput.files.length) {
-      statusElement.innerHTML = '<i class="fas fa-exclamation-circle"></i> 请选择设计文件';
-      return;
+  const fileInput = document.getElementById('load-file');
+  const statusElement = document.getElementById('load-status');
+
+  if (!fileInput.files.length) {
+    if (statusElement) {
+      statusElement.innerHTML = `<i class="fas fa-exclamation-circle"></i> ${lang('select_file_prompt')}`;
     }
-    const file = fileInput.files[0];
-    const reader = new FileReader();
-    reader.onload = function(e) {
-      try {
-        const designData = JSON.parse(e.target.result);
-        if (!designData.grid || typeof designData.grid !== 'object') {
-          throw new Error('无效的设计文件格式');
-        }
-        grid = {};
-        for (const [key, comp] of Object.entries(designData.grid)) {
-          const [x, y] = key.split(',').map(Number);
-          if (x >= 0 && x < canvasSize && y >= 0 && y < canvasSize && comp !== 'air') {
-            grid[key] = comp;
-          }
-        }
-        if (designData.scale) canvasScale = designData.scale;
-        if (designData.offsetX) offsetX = designData.offsetX;
-        if (designData.offsetY) offsetY = designData.offsetY;
-        updateStatusBar();
-        updateZoomDisplay();
-        closeAllModals();
-        hasChanges = false;
-        statusElement.innerHTML = '<i class="fas fa-check-circle"></i> 设计导入成功！';
-      } catch (error) {
-        statusElement.innerHTML = `<i class="fas fa-exclamation-circle"></i> 错误: ${error.message}`;
-        displayError(`loadDesign parse error: ${error.message}`);
+    return;
+  }
+
+  const file = fileInput.files[0];
+  const reader = new FileReader();
+
+  reader.onload = (e) => {
+    try {
+      parseDesignData(JSON.parse(e.target.result));
+      updateStatusBar();
+      updateZoomDisplay();
+      closeAllModals();
+      AppState.hasChanges = false;
+      saveHistory();
+      requestRender();
+      if (statusElement) {
+        statusElement.innerHTML = `<i class="fas fa-check-circle"></i> ${lang('load_success')}`;
       }
-    };
-    reader.onerror = function() {
-      statusElement.innerHTML = '<i class="fas fa-exclamation-circle"></i> 读取文件时出错';
-      displayError('loadDesign file read error');
-    };
-    reader.readAsText(file);
-  } catch (error) {
-    displayError(`loadDesign error: ${error.message}`);
+    } catch (error) {
+      if (statusElement) {
+        statusElement.innerHTML = `<i class="fas fa-exclamation-circle"></i> ${lang('error')}: ${error.message}`;
+      }
+      displayError(`${lang('load_error')}: ${error.message}`);
+    }
+  };
+
+  reader.onerror = () => {
+    if (statusElement) {
+      statusElement.innerHTML = `<i class="fas fa-exclamation-circle"></i> ${lang('file_read_error')}`;
+    }
+    displayError(lang('file_read_error'));
+  };
+
+  reader.readAsText(file);
+}
+
+function setupModalEventListeners() {
+  bindClick('save-btn', openSaveModal);
+  bindClick('load-btn', openLoadModal);
+  bindClick('clear-btn', openClearConfirmModal);
+  bindClick('help-btn', openHelpModal);
+  bindClick('save-screen', openScreenshotPreview);
+
+  bindClick('confirm-save', saveDesign);
+  bindClick('confirm-load', loadDesign);
+  bindClick('confirm-clear', clearCanvas);
+  bindClick('download-screenshot', downloadScreenshot);
+
+  document.querySelectorAll('.close-modal').forEach(btn => {
+    btn.addEventListener('click', closeAllModals);
+  });
+
+  document.querySelectorAll('.modal').forEach(modal => {
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) closeAllModals();
+    });
+  });
+
+  const fileDropArea = document.getElementById('file-drop-area');
+  const fileInput = document.getElementById('load-file');
+  const loadStatus = document.getElementById('load-status');
+
+  if (fileDropArea && fileInput) {
+    fileDropArea.addEventListener('click', () => fileInput.click());
+
+    fileInput.addEventListener('change', () => {
+      if (fileInput.files.length && loadStatus) {
+        loadStatus.innerHTML = `<i class="fas fa-check-circle"></i> ${lang('selected_file')}: ${fileInput.files[0].name}`;
+      }
+    });
+
+    fileDropArea.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      fileDropArea.classList.add('drag-over');
+    });
+
+    fileDropArea.addEventListener('dragleave', () => {
+      fileDropArea.classList.remove('drag-over');
+    });
+
+    fileDropArea.addEventListener('drop', (e) => {
+      e.preventDefault();
+      fileDropArea.classList.remove('drag-over');
+      if (e.dataTransfer.files.length) {
+        fileInput.files = e.dataTransfer.files;
+        if (loadStatus) {
+          loadStatus.innerHTML = `<i class="fas fa-check-circle"></i> ${lang('selected_file')}: ${fileInput.files[0].name}`;
+        }
+      }
+    });
   }
 }

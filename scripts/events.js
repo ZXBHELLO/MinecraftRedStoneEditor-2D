@@ -1,324 +1,278 @@
+// Canvas and window event handling
+
 let isDragging = false;
-let dragStartX = 0, dragStartY = 0;
+let dragStartX = 0;
+let dragStartY = 0;
 let touchStartTime = null;
 let initialTouchDistance = null;
 let initialCanvasScale = null;
-let touchCenterX = null, touchCenterY = null;
 let touchPending = null;
-let draggingPlancement = false;
-
-// 长按和双击检测
 let longPressTimer = null;
 let lastTapTime = 0;
-let lastTapX = 0, lastTapY = 0;
-const LONG_PRESS_DURATION = 500; // 长按持续时间（毫秒）
-const DOUBLE_TAP_DISTANCE = 30; // 双击最大距离（像素）
-const DOUBLE_TAP_TIME = 300; // 双击最大时间间隔（毫秒）
-
-function setupCanvasEventListeners() {
-  try {
-    //鼠标
-    canvas.addEventListener('mousedown', handleMouseDown);
-    canvas.addEventListener('mousemove', handleMouseMove);
-    canvas.addEventListener('mouseup', handleMouseUp);
-    canvas.addEventListener('wheel', handleMouseWheel);
-    //触屏
-    canvas.addEventListener('touchstart', handleTouchStart, { passive: false });
-    canvas.addEventListener('touchmove', handleTouchMove, { passive: false });
-    canvas.addEventListener('touchend', handleTouchEnd);
-    window.addEventListener('resize', handleWindowResize);
-  } catch (error) {
-    displayError(`setupCanvasEventListeners error: ${error.message}`);
-  }
-}
-
-// 防抖定时器
+let lastTapX = 0;
+let lastTapY = 0;
 let resizeTimer = null;
 
+const LONG_PRESS_DURATION = 500;
+const DOUBLE_TAP_DISTANCE = 30;
+const DOUBLE_TAP_TIME = 300;
+
+function setupCanvasEventListeners() {
+  const canvas = AppState.canvas;
+  if (!canvas) return;
+
+  canvas.addEventListener('mousedown', handleMouseDown);
+  canvas.addEventListener('mousemove', handleMouseMove);
+  canvas.addEventListener('mouseup', handleMouseUp);
+  canvas.addEventListener('mouseleave', handleMouseUp);
+  canvas.addEventListener('wheel', handleMouseWheel, { passive: false });
+
+  canvas.addEventListener('touchstart', handleTouchStart, { passive: false });
+  canvas.addEventListener('touchmove', handleTouchMove, { passive: false });
+  canvas.addEventListener('touchend', handleTouchEnd);
+
+  window.addEventListener('resize', handleWindowResize);
+  window.addEventListener('orientationchange', handleWindowResize);
+  document.addEventListener('keydown', handleKeyDown);
+}
+
 function handleWindowResize() {
-  try {
-    // 防抖处理，避免频繁触发
-    if (resizeTimer) clearTimeout(resizeTimer);
-    resizeTimer = setTimeout(function() {
-      resizeCanvas();
-      // 保持当前缩放比例，重新居中画布
-      const container = document.getElementById('canvas-container');
-      const canvasWidth = canvasSize * tileSize * canvasScale;
-      const canvasHeight = canvasSize * tileSize * canvasScale;
-      offsetX = (container.clientWidth - canvasWidth) / 2;
-      offsetY = (container.clientHeight - canvasHeight) / 2;
-      render();
-      updateZoomDisplay();
-    }, 100);
-  } catch (error) {
-    displayError(`handleWindowResize error: ${error.message}`);
-  }
+  if (resizeTimer) clearTimeout(resizeTimer);
+  resizeTimer = setTimeout(() => {
+    updateMobileToolbarHeight();
+    resizeCanvas();
+    const container = document.getElementById('canvas-container');
+    if (container) {
+      const canvasWidth = canvasSize * tileSize * AppState.canvasScale;
+      const canvasHeight = canvasSize * tileSize * AppState.canvasScale;
+      AppState.offsetX = (container.clientWidth - canvasWidth) / 2;
+      AppState.offsetY = (container.clientHeight - canvasHeight) / 2;
+    }
+    updateZoomDisplay();
+  }, 100);
 }
 
 function handleMouseDown(e) {
-  try {
-    if (e.button === 1 || e.button === 2) {
-      isDragging = true;
-      dragStartX = e.clientX - offsetX;
-      dragStartY = e.clientY - offsetY;
-      canvas.style.cursor = 'grabbing';
-      e.preventDefault();
-      return;
-    }
-    if (e.button === 0) {
-      const rect = canvas.getBoundingClientRect();
-      const x = e.clientX - rect.left;
-      const y = e.clientY - rect.top;
-      const gridX = Math.floor((x - offsetX) / (tileSize * canvasScale));
-      const gridY = Math.floor((y - offsetY) / (tileSize * canvasScale));
+  if (e.button === 1 || e.button === 2) {
+    isDragging = true;
+    dragStartX = e.clientX - AppState.offsetX;
+    dragStartY = e.clientY - AppState.offsetY;
+    AppState.canvas.style.cursor = 'grabbing';
+    e.preventDefault();
+    return;
+  }
 
-      setBlock(gridX,gridY,selectedComponent);
-    }
-  } catch (error) {
-    displayError(`handleMouseDown error: ${error.message}`);
+  if (e.button === 0) {
+    const gridPos = screenToGrid(e.clientX, e.clientY);
+    setBlock(gridPos.x, gridPos.y, AppState.selectedComponent);
   }
 }
 
 function handleMouseMove(e) {
-  try {
-    const rect = canvas.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
-    const gridX = Math.floor((x - offsetX) / (tileSize * canvasScale));
-    const gridY = Math.floor((y - offsetY) / (tileSize * canvasScale));
-    if (gridX >= 0 && gridX < canvasSize && gridY >= 0 && gridY < canvasSize) {
-      document.querySelector('#cursor-position span').textContent = `坐标: ${gridX},${gridY}`;
-    } else {
-      document.querySelector('#cursor-position span').textContent = `坐标: 0,0`;
-    }
-    if (isDragging) {
-      offsetX = e.clientX - dragStartX;
-      offsetY = e.clientY - dragStartY;
-    }
-  } catch (error) {
-    displayError(`handleMouseMove error: ${error.message}`);
+  const gridPos = screenToGrid(e.clientX, e.clientY);
+  updateCursorPosition(gridPos.x, gridPos.y);
+
+  if (isDragging) {
+    AppState.offsetX = e.clientX - dragStartX;
+    AppState.offsetY = e.clientY - dragStartY;
+    requestRender();
   }
 }
 
-function handleMouseUp(e) {
-  try {
-    isDragging = false;
-    canvas.style.cursor = 'default';
-  } catch (error) {
-    displayError(`handleMouseUp error: ${error.message}`);
-  }
+function handleMouseUp() {
+  isDragging = false;
+  if (AppState.canvas) AppState.canvas.style.cursor = 'default';
+}
+
+function handleMouseWheel(e) {
+  e.preventDefault();
+  const zoomAmount = e.deltaY > 0 ? -0.1 : 0.1;
+  zoomCanvas(zoomAmount, e.clientX, e.clientY);
 }
 
 function handleTouchStart(e) {
-  try {
-    e.preventDefault();
-    const touches = e.touches;
-    const rect = canvas.getBoundingClientRect();
-    touchStartTime = Date.now();
-    
-    // 清除之前的长按定时器
-    if (longPressTimer) {
-      clearTimeout(longPressTimer);
-      longPressTimer = null;
+  e.preventDefault();
+  const touches = e.touches;
+  touchStartTime = Date.now();
+  clearLongPressTimer();
+
+  if (touches.length === 1) {
+    isDragging = true;
+    dragStartX = touches[0].clientX - AppState.offsetX;
+    dragStartY = touches[0].clientY - AppState.offsetY;
+
+    const gridPos = screenToGrid(touches[0].clientX, touches[0].clientY);
+    if (gridPos.x >= 0 && gridPos.x < canvasSize && gridPos.y >= 0 && gridPos.y < canvasSize) {
+      touchPending = { gridX: gridPos.x, gridY: gridPos.y };
+
+      longPressTimer = setTimeout(() => {
+        if (touchPending && AppState.grid[`${gridPos.x},${gridPos.y}`]) {
+          setBlock(gridPos.x, gridPos.y, 'air');
+          triggerHaptic(20);
+          touchPending = null;
+        }
+      }, LONG_PRESS_DURATION);
     }
-    
-    if (touches.length === 1) {
-      isDragging = true;
-      dragStartX = touches[0].clientX - offsetX;
-      dragStartY = touches[0].clientY - offsetY;
-      canvas.style.cursor = 'grabbing';
-      
-      // 设置长按定时器
-      const touch = touches[0];
-      const x = touch.clientX - rect.left;
-      const y = touch.clientY - rect.top;
-      const gridX = Math.floor((x - offsetX) / (tileSize * canvasScale));
-      const gridY = Math.floor((y - offsetY) / (tileSize * canvasScale));
-      
-      if (gridX >= 0 && gridX < canvasSize && gridY >= 0 && gridY < canvasSize) {
-        touchPending = { gridX, gridY };
-        
-        // 长按检测
-        longPressTimer = setTimeout(function() {
-          // 长按触发删除操作
-          if (touchPending && grid[`${gridX},${gridY}`]) {
-            setBlock(gridX, gridY, 'air');
-            // 触觉反馈
-            if (navigator.vibrate) {
-              navigator.vibrate(20);
-            }
-            touchPending = null;
-          }
-        }, LONG_PRESS_DURATION);
-      }
-    } else if (touches.length === 2) {
-      isDragging = false;
-      // 双指触摸时清除长按定时器
-      if (longPressTimer) {
-        clearTimeout(longPressTimer);
-        longPressTimer = null;
-      }
-      
-      const touch1 = touches[0];
-      const touch2 = touches[1];
-      const centerX = (touch1.clientX + touch2.clientX) / 2;
-      const centerY = (touch1.clientY + touch2.clientY) / 2;
-      const dx = touch1.clientX - touch2.clientX;
-      const dy = touch1.clientY - touch2.clientY;
-      initialTouchDistance = Math.sqrt(dx * dx + dy * dy);
-      initialCanvasScale = canvasScale;
-      touchCenterX = centerX;
-      touchCenterY = centerY;
-    }
-  } catch (error) {
-    displayError(`handleTouchStart error: ${error.message}`);
+  } else if (touches.length === 2) {
+    isDragging = false;
+    const [touch1, touch2] = touches;
+    const dx = touch1.clientX - touch2.clientX;
+    const dy = touch1.clientY - touch2.clientY;
+    initialTouchDistance = Math.sqrt(dx * dx + dy * dy);
+    initialCanvasScale = AppState.canvasScale;
   }
 }
 
 function handleTouchMove(e) {
-  try {
-    e.preventDefault();
-    const touches = e.touches;
-    const rect = canvas.getBoundingClientRect();
-    
-    // 移动时清除长按定时器
-    if (longPressTimer) {
-      clearTimeout(longPressTimer);
-      longPressTimer = null;
-    }
-    
-    if (touches.length === 1 && isDragging) {
-      offsetX = touches[0].clientX - dragStartX;
-      offsetY = touches[0].clientY - dragStartY;
-      const x = touches[0].clientX - rect.left;
-      const y = touches[0].clientY - rect.top;
-      const gridX = Math.floor((x - offsetX) / (tileSize * canvasScale));
-      const gridY = Math.floor((y - offsetY) / (tileSize * canvasScale));
-      if (gridX >= 0 && gridX < canvasSize && gridY >= 0 && gridY < canvasSize) {
-        document.querySelector('#cursor-position span').textContent = `坐标: ${gridX},${gridY}`;
-      } else {
-        document.querySelector('#cursor-position span').textContent = `坐标: 0,0`;
-      }
-    } else if (touches.length === 2) {
-      const touch1 = touches[0];
-      const touch2 = touches[1];
-      const dx = touch1.clientX - touch2.clientX;
-      const dy = touch1.clientY - touch2.clientY;
-      const currentDistance = Math.sqrt(dx * dx + dy * dy);
-      const scaleChange = currentDistance / initialTouchDistance;
-      const oldScale = canvasScale;
-      canvasScale = Math.max(0.1, Math.min(2.0, initialCanvasScale * scaleChange));
+  e.preventDefault();
+  const touches = e.touches;
+  clearLongPressTimer();
 
-      // 画布中心作为缩放锚点
-      const centerX = rect.left + canvas.width / 2;
-      const centerY = rect.top + canvas.height / 2;
-      const canvasX = centerX - rect.left;
-      const canvasY = centerY - rect.top;
+  if (touches.length === 1 && isDragging) {
+    AppState.offsetX = touches[0].clientX - dragStartX;
+    AppState.offsetY = touches[0].clientY - dragStartY;
 
-      const gridCenterX = (canvasX - offsetX) / (tileSize * oldScale);
-      const gridCenterY = (canvasY - offsetY) / (tileSize * oldScale);
+    const gridPos = screenToGrid(touches[0].clientX, touches[0].clientY);
+    updateCursorPosition(gridPos.x, gridPos.y);
+    requestRender();
+  } else if (touches.length === 2 && initialTouchDistance) {
+    const [touch1, touch2] = touches;
+    const dx = touch1.clientX - touch2.clientX;
+    const dy = touch1.clientY - touch2.clientY;
+    const currentDistance = Math.sqrt(dx * dx + dy * dy);
+    const scaleChange = currentDistance / initialTouchDistance;
+    const oldScale = AppState.canvasScale;
 
-      offsetX = canvasX - gridCenterX * tileSize * canvasScale;
-      offsetY = canvasY - gridCenterY * tileSize * canvasScale;
+    AppState.canvasScale = Math.max(0.1, Math.min(2.0, initialCanvasScale * scaleChange));
 
-      updateZoomDisplay();
-    }
-  } catch (error) {
-    displayError(`handleTouchMove error: ${error.message}`);
+    const rect = AppState.canvas.getBoundingClientRect();
+    const centerX = rect.left + rect.width / 2;
+    const centerY = rect.top + rect.height / 2;
+    const canvasX = centerX - rect.left;
+    const canvasY = centerY - rect.top;
+
+    const gridCenterX = (canvasX - AppState.offsetX) / (tileSize * oldScale);
+    const gridCenterY = (canvasY - AppState.offsetY) / (tileSize * oldScale);
+
+    AppState.offsetX = canvasX - gridCenterX * tileSize * AppState.canvasScale;
+    AppState.offsetY = canvasY - gridCenterY * tileSize * AppState.canvasScale;
+
+    updateZoomDisplay();
+    requestRender();
   }
 }
 
 function handleTouchEnd(e) {
-  try {
-    // 清除长按定时器
-    if (longPressTimer) {
-      clearTimeout(longPressTimer);
-      longPressTimer = null;
-    }
-    
-    const touchDuration = Date.now() - touchStartTime;
-    const touches = e.changedTouches;
-    
-    if (touchDuration < 200 && touchPending && touches.length === 1) {
-      const { gridX, gridY } = touchPending;
-      const touch = touches[0];
-      const currentTime = Date.now();
-      
-      // 双击检测
-      const tapDistance = Math.sqrt(
-        Math.pow(touch.clientX - lastTapX, 2) + 
-        Math.pow(touch.clientY - lastTapY, 2)
-      );
-      
-      if (currentTime - lastTapTime < DOUBLE_TAP_TIME && tapDistance < DOUBLE_TAP_DISTANCE) {
-        // 双击触发：快速放大/缩小
-        const rect = canvas.getBoundingClientRect();
-        const centerX = touch.clientX;
-        const centerY = touch.clientY;
-        
-        // 如果当前缩放小于1.0，双击放大；否则缩小
-        if (canvasScale < 1.0) {
-          zoomCanvas(0.5, centerX, centerY);
-        } else {
-          zoomCanvas(-0.5, centerX, centerY);
-        }
-        
-        // 触觉反馈
-        if (navigator.vibrate) {
-          navigator.vibrate(15);
-        }
-        
-        // 重置双击计时
-        lastTapTime = 0;
+  clearLongPressTimer();
+
+  const touchDuration = Date.now() - touchStartTime;
+  const changedTouches = e.changedTouches;
+
+  if (touchDuration < 200 && touchPending && changedTouches.length === 1) {
+    const { gridX, gridY } = touchPending;
+    const touch = changedTouches[0];
+    const currentTime = Date.now();
+    const tapDistance = Math.hypot(touch.clientX - lastTapX, touch.clientY - lastTapY);
+
+    if (currentTime - lastTapTime < DOUBLE_TAP_TIME && tapDistance < DOUBLE_TAP_DISTANCE) {
+      if (AppState.canvasScale < 1.0) {
+        zoomCanvas(0.5, touch.clientX, touch.clientY);
       } else {
-        // 单击放置方块
-        setBlock(gridX, gridY, selectedComponent);
-        
-        // 记录点击信息用于双击检测
-        lastTapTime = currentTime;
-        lastTapX = touch.clientX;
-        lastTapY = touch.clientY;
+        zoomCanvas(-0.5, touch.clientX, touch.clientY);
       }
+      triggerHaptic(15);
+      lastTapTime = 0;
+    } else {
+      setBlock(gridX, gridY, AppState.selectedComponent);
+      lastTapTime = currentTime;
+      lastTapX = touch.clientX;
+      lastTapY = touch.clientY;
     }
-    
-    isDragging = false;
-    canvas.style.cursor = 'default';
-    initialTouchDistance = null;
-    initialCanvasScale = null;
-    touchCenterX = null;
-    touchCenterY = null;
-    touchPending = null;
-    touchStartTime = null;
-  } catch (error) {
-    displayError(`handleTouchEnd error: ${error.message}`);
+  }
+
+  isDragging = false;
+  initialTouchDistance = null;
+  initialCanvasScale = null;
+  touchPending = null;
+  touchStartTime = null;
+}
+
+function clearLongPressTimer() {
+  if (longPressTimer) {
+    clearTimeout(longPressTimer);
+    longPressTimer = null;
   }
 }
 
-function handleMouseWheel(e) {
-  try {
-    e.preventDefault();
-    const zoomAmount = e.deltaY > 0 ? -0.1 : 0.1;
-    zoomCanvas(zoomAmount, e.clientX, e.clientY);
-  } catch (error) {
-    displayError(`handleMouseWheel error: ${error.message}`);
+function handleKeyDown(e) {
+  if (e.key !== 'Escape') return;
+
+  const openModal = document.querySelector('.modal.show');
+  if (openModal) {
+    closeAllModals();
+    return;
+  }
+
+  const componentsPanel = document.getElementById('components-panel');
+  const overlay = document.getElementById('panel-overlay');
+  if (componentsPanel && componentsPanel.classList.contains('open')) {
+    componentsPanel.classList.remove('open');
+    if (overlay) overlay.classList.remove('show');
   }
 }
 
-function zoomCanvas(zoomAmount, centerX, centerY) {
-  try {
-    const oldScale = canvasScale;
-    canvasScale = Math.max(0.1, Math.min(2.0, canvasScale + zoomAmount));
-    const rect = canvas.getBoundingClientRect();
-    if (!centerX) centerX = rect.left + canvas.width / 2;
-    if (!centerY) centerY = rect.top + canvas.height / 2;
-    const canvasX = centerX - rect.left;
-    const canvasY = centerY - rect.top;
-    const gridCenterX = (canvasX - offsetX) / (tileSize * oldScale);
-    const gridCenterY = (canvasY - offsetY) / (tileSize * oldScale);
-    offsetX = canvasX - gridCenterX * tileSize * canvasScale;
-    offsetY = canvasY - gridCenterY * tileSize * canvasScale;
-    updateZoomDisplay();
-  } catch (error) {
-    displayError(`zoomCanvas error: ${error.message}`);
+function setupMobileEventListeners() {
+  const panelToggle = document.getElementById('mobile-panel-toggle');
+  const panelClose = document.getElementById('panel-close-btn');
+  const componentsPanel = document.getElementById('components-panel');
+
+  let overlay = document.getElementById('panel-overlay');
+  if (!overlay) {
+    overlay = document.createElement('div');
+    overlay.className = 'panel-overlay';
+    overlay.id = 'panel-overlay';
+    document.body.appendChild(overlay);
+  }
+
+  function openPanel() {
+    componentsPanel.classList.add('open');
+    overlay.classList.add('show');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closePanel() {
+    componentsPanel.classList.remove('open');
+    overlay.classList.remove('show');
+    document.body.style.overflow = '';
+  }
+
+  if (panelToggle) panelToggle.addEventListener('click', openPanel);
+  if (panelClose) panelClose.addEventListener('click', closePanel);
+  if (overlay) overlay.addEventListener('click', closePanel);
+
+  const componentsList = document.getElementById('components-list');
+  if (componentsList) {
+    componentsList.addEventListener('click', (e) => {
+      if (e.target.closest('.component')) {
+        setTimeout(closePanel, 180);
+      }
+    });
+  }
+
+  bindMobileTool('mobile-undo-btn', undo);
+  bindMobileTool('mobile-redo-btn', redo);
+  bindMobileTool('mobile-clear-btn', openClearConfirmModal);
+  bindMobileTool('mobile-save-btn', openSaveModal);
+  bindMobileTool('mobile-load-btn', openLoadModal);
+  bindMobileTool('mobile-theme-btn', toggleTheme);
+}
+
+function bindMobileTool(id, handler) {
+  const element = document.getElementById(id);
+  if (element) {
+    element.addEventListener('click', () => {
+      handler();
+      triggerHaptic(10);
+    });
   }
 }
